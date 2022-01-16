@@ -8,7 +8,7 @@ on:
         required: false
         type: string
       BUILD_PLATFORMS:
-        description: 'Comma separated list of targets for builds e.g. "linux/amd64,linux/arm64,linux/ppc64le"'
+        description: 'Comma separated list of targets for builds e.g. "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"'
         default: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
         required: false
         type: string
@@ -21,6 +21,16 @@ on:
         description: "Email for Git Commit PR to Release Operator"
         required: false
         type: string
+      OPERATOR_IMAGE_REPOSITORY:
+        description: "Registry image e.g. quay.io/redhat-cop/repository-name"
+        default: ""
+        required: false
+        type: string
+      BUNDLE_IMAGE_REPOSITORY:
+        description: "Registry image e.g. quay.io/redhat-cop/repository-name"
+        default: ""
+        required: false
+        type: string
     secrets:
       COMMUNITY_OPERATOR_PAT:
         description: "Github PAT Token for Community Operator Fork Git Operations"
@@ -31,12 +41,6 @@ on:
       REGISTRY_PASSWORD:
         description: "Password for Registry"
         required: true
-      OPERATOR_IMAGE_REPOSITORY:
-        description: "Registry image e.g. quay.io/redhat-cop/repository-name"
-        required: false
-      BUNDLE_IMAGE_REPOSITORY:
-        description: "Registry image e.g. quay.io/redhat-cop/repository-name"
-        required: false
 
 env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
@@ -79,21 +83,21 @@ jobs:
       - name: Setting Image Variables
         id: set-variables-image
         run: |
-          if [ "${{ secrets.OPERATOR_IMAGE_REPOSITORY }}" == "" ]; then
+          if [ "${{ inputs.OPERATOR_IMAGE_REPOSITORY }}" == "" ]; then
             echo "::set-output name=operator_image_repository_name::${{ steps.set-variables.outputs.repository_name }}"
             echo "::set-output name=operator_image_registry::quay.io/${{ github.repository_owner }}"
           else
-            OPERATOR_IMAGE_REPOSITORY="${{ secrets.OPERATOR_IMAGE_REPOSITORY }}"
+            OPERATOR_IMAGE_REPOSITORY="${{ inputs.OPERATOR_IMAGE_REPOSITORY }}"
             echo "::set-output name=operator_image_repository_name::${OPERATOR_IMAGE_REPOSITORY##*/}"
             echo "::set-output name=operator_image_registry::${OPERATOR_IMAGE_REPOSITORY%/*}"
           fi
 
-          if [ "${{ secrets.BUNDLE_IMAGE_REPOSITORY }}" == "" ]; then
+          if [ "${{ inputs.BUNDLE_IMAGE_REPOSITORY }}" == "" ]; then
             echo "::set-output name=bundle_image_repository_name::${{ steps.set-variables.outputs.repository_name }}-bundle"
             echo "::set-output name=bundle_image_registry::quay.io/${{ github.repository_owner }}"
 
           else
-            BUNDLE_IMAGE_REPOSITORY="${{ secrets.BUNDLE_IMAGE_REPOSITORY }}"
+            BUNDLE_IMAGE_REPOSITORY="${{ inputs.BUNDLE_IMAGE_REPOSITORY }}"
             echo "::set-output name=bundle_image_repository_name::${BUNDLE_IMAGE_REPOSITORY##*/}"
             echo "::set-output name=bundle_image_registry::${BUNDLE_IMAGE_REPOSITORY%/*}"
           fi

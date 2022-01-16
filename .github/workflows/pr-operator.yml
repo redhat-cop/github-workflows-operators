@@ -8,7 +8,7 @@ on:
         required: false
         type: string
       BUILD_PLATFORMS:
-        description: 'Comma separated list of targets for builds e.g. "linux/amd64,linux/arm64,linux/ppc64le"'
+        description: 'Comma separated list of targets for builds e.g. "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"'
         default: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
         required: false
         type: string
