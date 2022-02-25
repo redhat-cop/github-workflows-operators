@@ -209,7 +209,7 @@ jobs:
           VERSION: latest
           GOOS: ${{ steps.setup-build-step.outputs.platform_os }}
           GOARCH: ${{ steps.setup-build-step.outputs.platform_arch }}
-        run: make test
+        run: echo $GOBIN && make test
 
       - name: integration test
         shell: bash
