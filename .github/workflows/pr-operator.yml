@@ -121,7 +121,7 @@ jobs:
           make kustomize
 
           # EnvTest
-          # make envtest
+          make envtest
 
       - name: Upload Support Binaries
         uses: actions/upload-artifact@v2
