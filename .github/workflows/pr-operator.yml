@@ -17,8 +17,8 @@ on:
         default: "^1.16"
         required: false
         type: string
-      SETUP_ADDITIONAL_MAKEFILE_TARGETS:
-        description: 'Additonal makefile targets to run after setup e.g. "test" to run unit tests or "test integration" to run both unit and integration tests.'
+      TEST_TARGETS:
+        description: 'Additonal makefile targets to run for testing e.g. "test" to run unit tests or "test integration" to run both unit and integration tests.'
         default: ""
         required: false
         type: string
@@ -131,15 +131,6 @@ jobs:
           name: support-binaries
           path: ${{ steps.set-variables.outputs.bin_dir }}
 
-      - name: Additional Makefile Targets
-        shell: bash
-        env:
-          VERSION: latest
-          GOOS: linux
-          GOARCH: amd64
-        if: ${{ inputs.SETUP_ADDITIONAL_MAKEFILE_TARGETS != '' }}
-        run: make ${{ inputs.SETUP_ADDITIONAL_MAKEFILE_TARGETS }}
-
     outputs:
       repository_name: ${{ steps.set-variables.outputs.repository_name }}
       bin_dir: ${{ steps.set-variables.outputs.bin_dir }}
@@ -154,6 +145,25 @@ jobs:
       tag_event: ${{ steps.set-variables-image.outputs.tag_event }}
       dist_matrix: ${{ steps.set-variables.outputs.dist_matrix }}
       image_platform_tags: ${{ steps.set-variables.outputs.image_platform_tags }}
+
+  test-operator:
+    runs-on: ubuntu-latest
+    name: test-operator
+    if: ${{ inputs.TEST_TARGETS != '' }}
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ inputs.GO_VERSION }}
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Test targets
+        shell: bash
+        env:
+          VERSION: latest
+          GOOS: linux
+          GOARCH: amd64        
+        run: make ${{ inputs.TEST_TARGETS }}
 
   build-operator:
     runs-on: ubuntu-latest
