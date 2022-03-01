@@ -17,6 +17,11 @@ on:
         default: "^1.16"
         required: false
         type: string
+      SETUP_ADDITIONAL_MAKEFILE_TARGETS:
+        description: 'Additonal makefile targets to run after setup e.g. "test" to run unit tests or "test integration" to run both unit and integration tests.'
+        default: "test"
+        required: false
+        type: string
 env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
@@ -50,7 +55,7 @@ jobs:
           else
             OPERATOR_IMAGE_REPOSITORY="${{ secrets.OPERATOR_IMAGE_REPOSITORY }}"
             echo "::set-output name=operator_image_repository_name::${OPERATOR_IMAGE_REPOSITORY##*/}"
-            echo "::set-output name=operator_image_registry::${OPERATOR_IMAGE_REPOSITORY%/*}"
+            echo "::set-output name=OPERATOR_SDK_VERSIONoperator_image_registry::${OPERATOR_IMAGE_REPOSITORY%/*}"
           fi
 
           if [ "${{ secrets.BUNDLE_IMAGE_REPOSITORY }}" == "" ]; then
@@ -126,21 +131,14 @@ jobs:
           name: support-binaries
           path: ${{ steps.set-variables.outputs.bin_dir }}
 
-      - name: unit test
+      - name: Additional Makefile Targets
         shell: bash
         env:
           VERSION: latest
           GOOS: linux
           GOARCH: amd64
-        run: make test
-
-      - name: integration test
-        shell: bash
-        env:
-          VERSION: latest
-          GOOS: linux
-          GOARCH: amd64
-        run: make integration
+        if: ${{ inputs.SETUP_ADDITIONAL_MAKEFILE_TARGETS != '' }}
+        run: make ${{ inputs.SETUP_ADDITIONAL_MAKEFILE_TARGETS }}
 
     outputs:
       repository_name: ${{ steps.set-variables.outputs.repository_name }}
