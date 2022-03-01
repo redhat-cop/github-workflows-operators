@@ -120,14 +120,28 @@ jobs:
           # Kustomize
           make kustomize
 
-          # EnvTest
-          make envtest
-
       - name: Upload Support Binaries
         uses: actions/upload-artifact@v2
         with:
           name: support-binaries
           path: ${{ steps.set-variables.outputs.bin_dir }}
+
+      - name: unit test
+        shell: bash
+        env:
+          VERSION: latest
+          GOOS: linux
+          GOARCH: amd64
+        run: make test
+
+      - name: integration test
+        shell: bash
+        env:
+          VERSION: latest
+          GOOS: linux
+          GOARCH: amd64
+        run: make integration
+
     outputs:
       repository_name: ${{ steps.set-variables.outputs.repository_name }}
       bin_dir: ${{ steps.set-variables.outputs.bin_dir }}
@@ -205,22 +219,6 @@ jobs:
           make generate
           make fmt
           make vet
-
-      - name: unit test
-        shell: bash
-        env:
-          VERSION: latest
-          GOOS: ${{ steps.setup-build-step.outputs.platform_os }}
-          GOARCH: ${{ steps.setup-build-step.outputs.platform_arch }}
-        run: echo $GOBIN && make test
-
-      - name: integration test
-        shell: bash
-        env:
-          VERSION: latest
-          GOOS: ${{ steps.setup-build-step.outputs.platform_os }}
-          GOARCH: ${{ steps.setup-build-step.outputs.platform_arch }}
-        run: make integration
 
       - name: build code
         shell: bash
