@@ -22,6 +22,7 @@ This workflow allows a caller repositiory following a common structure to build 
 * OPERATOR_SDK_VERSION - (Optional) Verison of Operator SDK for installation.
 * BUILD_PLATFORMS - (Optional) Defaults to ```linux/amd64,linux/arm64,linux/ppc64le``` comma seperated list of ```os/arch``` build targets.
 * PR_ACTOR - (Optional) Email address tied to Github Account for Pull Requests
+* TEST_TARGETS - (Optional) Additonal makefile targets to run for testing e.g. "test" to run unit tests or "test integration" to run both unit and integration test targets.
 
 #### Calling this Workflow - Job Example:
 ```
@@ -38,6 +39,7 @@ jobs:
     with: 
       BUILD_PLATFORMS: "linux/amd64,linux/arm64,linux/ppc64le"
       PR_ACTOR: "user@tld.com
+      TEST_TARGETS: "test"
 ```
 
 

@@ -31,6 +31,11 @@ on:
         default: ""
         required: false
         type: string
+      TEST_TARGETS:
+        description: 'Additonal makefile targets to run for testing e.g. "test" to run unit tests or "test integration" to run both unit and integration tests.'
+        default: ""
+        required: false
+        type: string
     secrets:
       COMMUNITY_OPERATOR_PAT:
         description: "Github PAT Token for Community Operator Fork Git Operations"
@@ -814,3 +819,50 @@ jobs:
             <sup>1</sup> If you feel your Operator does not fit any of the pre-defined categories, file a PR against this repo and explain your need
             <sup>2</sup> For more information see [here](https://github.com/operator-framework/operator-sdk/blob/master/doc/images/operator-capability-level.svg)
           token: ${{ secrets.COMMUNITY_OPERATOR_PAT }}
+
+  test-operator:
+    runs-on: ubuntu-latest
+    name: test-operator
+    if: ${{ inputs.TEST_TARGETS != '' }}
+    needs: ["setup"]
+    env:
+      REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ inputs.GO_VERSION }}
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Go Build Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.setup.outputs.go_build }}
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+
+      - name: Go Mod Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.setup.outputs.go_mod }}
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+
+      - name: Download Binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: support-binaries
+          path: ${{ needs.setup.outputs.bin_dir }}
+
+      - name: Prepare Build Step
+        id: setup-build-step
+        run: |
+          # Setup Path
+          echo "${{ needs.setup.outputs.bin_dir }}" >> $GITHUB_PATH
+
+          # Make Binaries Executable
+          chmod +x ${{ needs.setup.outputs.bin_dir }}/*
+
+      - name: Test targets
+        shell: bash   
+        run: make ${{ inputs.TEST_TARGETS }}
