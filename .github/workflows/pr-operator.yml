@@ -19,7 +19,7 @@ on:
         type: string
       SETUP_ADDITIONAL_MAKEFILE_TARGETS:
         description: 'Additonal makefile targets to run after setup e.g. "test" to run unit tests or "test integration" to run both unit and integration tests.'
-        default: "test"
+        default: ""
         required: false
         type: string
 env:
