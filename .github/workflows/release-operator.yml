@@ -193,7 +193,7 @@ jobs:
   build-operator:
     runs-on: ubuntu-latest
     name: build-operator
-    needs: ["setup"]
+    needs: ["setup", "test-operator"]
     strategy:
       matrix:
         platform: ${{ fromJson(needs.setup.outputs.dist_matrix) }}
@@ -302,7 +302,7 @@ jobs:
   process-operator-image-manifest:
     runs-on: ubuntu-latest
     name: process-operator-image-manifest
-    needs: ["setup", "build-operator"]
+    needs: ["setup", "test-operator", "build-operator"]
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
@@ -339,7 +339,7 @@ jobs:
   build-bundle:
     runs-on: ubuntu-latest
     name: build-bundle
-    needs: ["setup", "build-operator", "process-operator-image-manifest"]
+    needs: ["setup", "test-operator", "build-operator", "process-operator-image-manifest"]
     strategy:
       matrix:
         platform: ${{ fromJson(needs.setup.outputs.dist_matrix) }}
@@ -455,6 +455,7 @@ jobs:
     needs:
       [
         "setup",
+        "test-operator",
         "build-operator",
         "process-operator-image-manifest",
         "build-bundle",
@@ -556,6 +557,7 @@ jobs:
     needs:
       [
         "setup",
+        "test-operator",
         "build-operator",
         "build-bundle",
         "package-helm",
@@ -598,6 +600,7 @@ jobs:
     needs:
       [
         "setup",
+        "test-operator",
         "build-operator",
         "build-bundle",
         "package-helm",
@@ -655,7 +658,7 @@ jobs:
     runs-on: ubuntu-latest
     name: operatorhub-release
     if: ${{ needs.setup.outputs.tag_event == 'true' }}
-    needs: ["setup", "github-release", "helm-release"]
+    needs: ["setup", "test-operator", "github-release", "helm-release"]
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
