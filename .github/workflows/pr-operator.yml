@@ -55,7 +55,7 @@ jobs:
           else
             OPERATOR_IMAGE_REPOSITORY="${{ secrets.OPERATOR_IMAGE_REPOSITORY }}"
             echo "::set-output name=operator_image_repository_name::${OPERATOR_IMAGE_REPOSITORY##*/}"
-            echo "::set-output name=OPERATOR_SDK_VERSIONoperator_image_registry::${OPERATOR_IMAGE_REPOSITORY%/*}"
+            echo "::set-output name=operator_image_registry::${OPERATOR_IMAGE_REPOSITORY%/*}"
           fi
 
           if [ "${{ secrets.BUNDLE_IMAGE_REPOSITORY }}" == "" ]; then
