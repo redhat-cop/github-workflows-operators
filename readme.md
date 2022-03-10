@@ -19,28 +19,55 @@ This workflow allows a caller repositiory following a common structure to build 
 * BUNDLE_IMAGE_REPOSITORY - (Optional) 'Registry image e.g. quay.io/redhat-cop/repository-name' will default to ```quay.io/github.repo.owner/repo.name```
 
 ##### Caller (Operator Repo) Workflow Inputs
-* OPERATOR_SDK_VERSION - (Optional) Verison of Operator SDK for installation.
-* BUILD_PLATFORMS - (Optional) Defaults to ```linux/amd64,linux/arm64,linux/ppc64le``` comma seperated list of ```os/arch``` build targets.
-* PR_ACTOR - (Optional) Email address tied to Github Account for Pull Requests
-* TEST_TARGETS - (Optional) Additonal makefile targets to run for testing e.g. "test" to run unit tests or "test integration" to run both unit and integration test targets.
+* OPERATOR_SDK_VERSION - (Optional string) Verison of Operator SDK for installation.
+* BUILD_PLATFORMS - (Optional string) Defaults to ```linux/amd64,linux/arm64,linux/ppc64le``` comma seperated list of ```os/arch``` build targets.
+* PR_ACTOR - (Optional string) Email address tied to Github Account for Pull Requests
+* RUN_UNIT_TESTS - (Optional boolean) Defaults to ```false```. If true, runs unit tests in the test-operator step by running the *test* target in the Makefile.
+* RUN_INTEGRATION_TESTS - (Optional boolean) Defaults to ```false```. If true, runs integration tests in the test-operator step by running the *integration* target in the Makefile. If both `RUN_UNIT_TESTS` and `RUN_INTEGRATION_TESTS` are true, the unit tests will run first.
 
-#### Calling this Workflow - Job Example:
-```
+#### Calling this Workflow - Job Examples:
+
+Example PR workflow in your ooperator's `.gihub/workflows/pr-operator.yml` file...
+
+```yaml 
+name: pull request
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+
 jobs:
-  release-operator:
-    name: release-operator
-    uses: nickjordan/github-workflows-operators/.github/workflows/release-operator.yml@main
-    secrets: 
+  shared-operator-workflow:
+    name: shared-operator-workflow
+    uses: redhat-cop/github-workflows-operators/.github/workflows/pr-operator.yml@main
+    with: 
+      RUN_UNIT_TESTS: true
+      RUN_INTEGRATION_TESTS: true
+```
+
+Example release workflow in your operator's `.gihub/workflows/release-operator.yml` file...
+
+```yaml
+name: push
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - v*
+
+jobs:
+  shared-operator-workflow:
+    name: shared-operator-workflow
+    uses: redhat-cop/github-workflows-operators/.github/workflows/release-operator.yml@main    
+    secrets:
       COMMUNITY_OPERATOR_PAT: ${{ secrets.COMMUNITY_OPERATOR_PAT }}
-      BUNDLE_IMAGE_REPOSITORY: ${{ secrets.BUNDLE_IMAGE_REPOSITORY }}
-      OPERATOR_IMAGE_REPOSITORY: ${{ secrets.OPERATOR_IMAGE_REPOSITORY }}
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-    with: 
-      BUILD_PLATFORMS: "linux/amd64,linux/arm64,linux/ppc64le"
-      PR_ACTOR: "user@tld.com
-      TEST_TARGETS: "test"
+    with:
+      PR_ACTOR: "raffaele.spazzoli@gmail.com"
+      RUN_UNIT_TESTS: true
+      RUN_INTEGRATION_TESTS: true
 ```
-
-
-

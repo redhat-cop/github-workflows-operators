@@ -31,11 +31,16 @@ on:
         default: ""
         required: false
         type: string
-      TEST_TARGETS:
-        description: 'Additonal makefile targets to run for testing e.g. "test" to run unit tests or "test integration" to run both unit and integration tests.'
-        default: ""
+      RUN_UNIT_TESTS:
+        description: "Run unit tests will run the test target in the Makefile"
+        default: false
         required: false
-        type: string
+        type: boolean
+      RUN_INTEGRATION_TESTS:
+        description: "Run integration tests will run the integration target in the Makefile"
+        default: false
+        required: false
+        type: boolean
     secrets:
       COMMUNITY_OPERATOR_PAT:
         description: "Github PAT Token for Community Operator Fork Git Operations"
@@ -826,7 +831,7 @@ jobs:
   test-operator:
     runs-on: ubuntu-latest
     name: test-operator
-    if: ${{ inputs.TEST_TARGETS != '' }}
+    if: ${{ inputs.RUN_UNIT_TESTS || inputs.RUN_INTEGRATION_TESTS }}
     needs: ["setup"]
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
@@ -866,6 +871,12 @@ jobs:
           # Make Binaries Executable
           chmod +x ${{ needs.setup.outputs.bin_dir }}/*
 
-      - name: Test targets
-        shell: bash   
-        run: make ${{ inputs.TEST_TARGETS }}
+      - name: Run unit tests
+        shell: bash
+        if: ${{ inputs.RUN_UNIT_TESTS }}
+        run: make test
+      
+      - name: Run integration tests
+        shell: bash
+        if: ${{ inputs.RUN_INTEGRATION_TESTS }}
+        run: make integration
