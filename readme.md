@@ -42,8 +42,8 @@ jobs:
     name: shared-operator-workflow
     uses: redhat-cop/github-workflows-operators/.github/workflows/pr-operator.yml@main
     with: 
-      RUN_UNIT_TESTS: "true"
-      RUN_INTEGRATION_TESTS: "true"
+      RUN_UNIT_TESTS: true
+      RUN_INTEGRATION_TESTS: true
 ```
 
 Example release workflow in your operator's `.gihub/workflows/release-operator.yml` file...
@@ -68,6 +68,6 @@ jobs:
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
     with:
       PR_ACTOR: "raffaele.spazzoli@gmail.com"
-      RUN_UNIT_TESTS: "true"
-      RUN_INTEGRATION_TESTS: "true"
+      RUN_UNIT_TESTS: true
+      RUN_INTEGRATION_TESTS: true
 ```

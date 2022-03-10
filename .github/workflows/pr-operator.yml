@@ -19,12 +19,12 @@ on:
         type: string
       RUN_UNIT_TESTS:
         description: "Run unit tests will run the test target in the Makefile"
-        default: "false"
+        default: false
         required: false
         type: boolean
       RUN_INTEGRATION_TESTS:
         description: "Run integration tests will run the integration target in the Makefile"
-        default: "false"
+        default: false
         required: false
         type: boolean
 env:
