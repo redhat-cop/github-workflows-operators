@@ -40,7 +40,7 @@ on:
 jobs:
   shared-operator-workflow:
     name: shared-operator-workflow
-    uses: trevorbox/github-workflows-operators/.github/workflows/pr-operator.yml@main
+    uses: redhat-cop/github-workflows-operators/.github/workflows/pr-operator.yml@main
     with: 
       RUN_UNIT_TESTS: "true"
       RUN_INTEGRATION_TESTS: "true"
@@ -61,7 +61,7 @@ on:
 jobs:
   shared-operator-workflow:
     name: shared-operator-workflow
-    uses: trevorbox/github-workflows-operators/.github/workflows/release-operator.yml@main    
+    uses: redhat-cop/github-workflows-operators/.github/workflows/release-operator.yml@main    
     secrets:
       COMMUNITY_OPERATOR_PAT: ${{ secrets.COMMUNITY_OPERATOR_PAT }}
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
