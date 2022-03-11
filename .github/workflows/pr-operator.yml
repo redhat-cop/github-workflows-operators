@@ -17,6 +17,16 @@ on:
         default: "^1.16"
         required: false
         type: string
+      RUN_UNIT_TESTS:
+        description: "Run unit tests will run the test target in the Makefile"
+        default: false
+        required: false
+        type: boolean
+      RUN_INTEGRATION_TESTS:
+        description: "Run integration tests will run the integration target in the Makefile"
+        default: false
+        required: false
+        type: boolean
 env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
@@ -125,6 +135,7 @@ jobs:
         with:
           name: support-binaries
           path: ${{ steps.set-variables.outputs.bin_dir }}
+
     outputs:
       repository_name: ${{ steps.set-variables.outputs.repository_name }}
       bin_dir: ${{ steps.set-variables.outputs.bin_dir }}
@@ -403,3 +414,56 @@ jobs:
         with:
           name: dist
           path: dist
+
+  test-operator:
+    runs-on: ubuntu-latest
+    name: test-operator
+    if: ${{ inputs.RUN_UNIT_TESTS || inputs.RUN_INTEGRATION_TESTS }}
+    needs: ["setup"]
+    env:
+      REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ inputs.GO_VERSION }}
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Go Build Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.setup.outputs.go_build }}
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+
+      - name: Go Mod Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.setup.outputs.go_mod }}
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+
+      - name: Download Binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: support-binaries
+          path: ${{ needs.setup.outputs.bin_dir }}
+
+      - name: Prepare Build Step
+        id: setup-build-step
+        run: |
+          # Setup Path
+          echo "${{ needs.setup.outputs.bin_dir }}" >> $GITHUB_PATH
+
+          # Make Binaries Executable
+          chmod +x ${{ needs.setup.outputs.bin_dir }}/*
+
+      - name: Run unit tests
+        shell: bash
+        if: ${{ inputs.RUN_UNIT_TESTS }}
+        run: make test
+      
+      - name: Run integration tests
+        shell: bash
+        if: ${{ inputs.RUN_INTEGRATION_TESTS }}
+        run: make integration

@@ -31,6 +31,16 @@ on:
         default: ""
         required: false
         type: string
+      RUN_UNIT_TESTS:
+        description: "Run unit tests will run the test target in the Makefile"
+        default: false
+        required: false
+        type: boolean
+      RUN_INTEGRATION_TESTS:
+        description: "Run integration tests will run the integration target in the Makefile"
+        default: false
+        required: false
+        type: boolean
     secrets:
       COMMUNITY_OPERATOR_PAT:
         description: "Github PAT Token for Community Operator Fork Git Operations"
@@ -188,7 +198,7 @@ jobs:
   build-operator:
     runs-on: ubuntu-latest
     name: build-operator
-    needs: ["setup"]
+    needs: ["setup", "test-operator"]
     strategy:
       matrix:
         platform: ${{ fromJson(needs.setup.outputs.dist_matrix) }}
@@ -297,7 +307,7 @@ jobs:
   process-operator-image-manifest:
     runs-on: ubuntu-latest
     name: process-operator-image-manifest
-    needs: ["setup", "build-operator"]
+    needs: ["setup", "test-operator", "build-operator"]
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
@@ -334,7 +344,7 @@ jobs:
   build-bundle:
     runs-on: ubuntu-latest
     name: build-bundle
-    needs: ["setup", "build-operator", "process-operator-image-manifest"]
+    needs: ["setup", "test-operator", "build-operator", "process-operator-image-manifest"]
     strategy:
       matrix:
         platform: ${{ fromJson(needs.setup.outputs.dist_matrix) }}
@@ -450,6 +460,7 @@ jobs:
     needs:
       [
         "setup",
+        "test-operator",
         "build-operator",
         "process-operator-image-manifest",
         "build-bundle",
@@ -551,6 +562,7 @@ jobs:
     needs:
       [
         "setup",
+        "test-operator",
         "build-operator",
         "build-bundle",
         "package-helm",
@@ -593,6 +605,7 @@ jobs:
     needs:
       [
         "setup",
+        "test-operator",
         "build-operator",
         "build-bundle",
         "package-helm",
@@ -650,7 +663,7 @@ jobs:
     runs-on: ubuntu-latest
     name: operatorhub-release
     if: ${{ needs.setup.outputs.tag_event == 'true' }}
-    needs: ["setup", "github-release", "helm-release"]
+    needs: ["setup", "test-operator", "github-release", "helm-release"]
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
@@ -814,3 +827,56 @@ jobs:
             <sup>1</sup> If you feel your Operator does not fit any of the pre-defined categories, file a PR against this repo and explain your need
             <sup>2</sup> For more information see [here](https://github.com/operator-framework/operator-sdk/blob/master/doc/images/operator-capability-level.svg)
           token: ${{ secrets.COMMUNITY_OPERATOR_PAT }}
+
+  test-operator:
+    runs-on: ubuntu-latest
+    name: test-operator
+    if: ${{ inputs.RUN_UNIT_TESTS || inputs.RUN_INTEGRATION_TESTS }}
+    needs: ["setup"]
+    env:
+      REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ inputs.GO_VERSION }}
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Go Build Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.setup.outputs.go_build }}
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+
+      - name: Go Mod Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.setup.outputs.go_mod }}
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+
+      - name: Download Binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: support-binaries
+          path: ${{ needs.setup.outputs.bin_dir }}
+
+      - name: Prepare Build Step
+        id: setup-build-step
+        run: |
+          # Setup Path
+          echo "${{ needs.setup.outputs.bin_dir }}" >> $GITHUB_PATH
+
+          # Make Binaries Executable
+          chmod +x ${{ needs.setup.outputs.bin_dir }}/*
+
+      - name: Run unit tests
+        shell: bash
+        if: ${{ inputs.RUN_UNIT_TESTS }}
+        run: make test
+      
+      - name: Run integration tests
+        shell: bash
+        if: ${{ inputs.RUN_INTEGRATION_TESTS }}
+        run: make integration
