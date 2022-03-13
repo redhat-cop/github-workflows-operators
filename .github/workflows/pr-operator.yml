@@ -27,6 +27,11 @@ on:
         default: false
         required: false
         type: boolean
+      RUN_HELMCHART_TEST:
+        description: "Run helmchart test will run the helmchart-test target in the Makefile"
+        default: false
+        required: false
+        type: boolean
 env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
@@ -398,6 +403,11 @@ jobs:
 
           # Make Binaries Executable
           chmod +x ${{ needs.setup.outputs.bin_dir }}/*
+
+      - name: Test Helm Chart Deployment
+        shell: bash
+        if: ${{ inputs.RUN_HELMCHART_TEST }}
+        run: make helmchart-test
 
       - name: Build and Package Helm Chart
         shell: bash

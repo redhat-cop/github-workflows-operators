@@ -41,6 +41,11 @@ on:
         default: false
         required: false
         type: boolean
+      RUN_HELMCHART_TEST:
+        description: "Run helmchart test will run the helmchart-test target in the Makefile"
+        default: false
+        required: false
+        type: boolean
     secrets:
       COMMUNITY_OPERATOR_PAT:
         description: "Github PAT Token for Community Operator Fork Git Operations"
@@ -538,6 +543,11 @@ jobs:
 
           # Make Binaries Executable
           chmod +x ${{ needs.setup.outputs.bin_dir }}/*
+
+      - name: Test Helm Chart Deployment
+        shell: bash
+        if: ${{ inputs.RUN_HELMCHART_TEST }}
+        run: make helmchart-test
 
       - name: Build and Package Helm Chart
         shell: bash
