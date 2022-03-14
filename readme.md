@@ -24,7 +24,7 @@ This workflow allows a caller repositiory following a common structure to build 
 * PR_ACTOR - (Optional string) Email address tied to Github Account for Pull Requests
 * RUN_UNIT_TESTS - (Optional boolean) Defaults to ```false```. If true, runs unit tests in the test-operator step by running the *test* target in the Makefile.
 * RUN_INTEGRATION_TESTS - (Optional boolean) Defaults to ```false```. If true, runs integration tests in the test-operator step by running the *integration* target in the Makefile. If both `RUN_UNIT_TESTS` and `RUN_INTEGRATION_TESTS` are true, the unit tests will run first.
-* RUN_HELMCHART_TEST - (Optional boolean) Defaults to ```false```. If true, runs the helm chart test deployment in the package-helm step by running the *helmchart-test* target in the Makefile.
+* RUN_HELMCHART_TEST - (Optional boolean) Defaults to ```false```. If true, runs the helm chart test deployment by running the *helmchart-test* target in the Makefile.
 
 #### Calling this Workflow - Job Examples:
 

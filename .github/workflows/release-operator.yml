@@ -544,11 +544,6 @@ jobs:
           # Make Binaries Executable
           chmod +x ${{ needs.setup.outputs.bin_dir }}/*
 
-      - name: Test Helm Chart Deployment
-        shell: bash
-        if: ${{ inputs.RUN_HELMCHART_TEST }}
-        run: make helmchart-test
-
       - name: Build and Package Helm Chart
         shell: bash
         run: |
@@ -890,3 +885,53 @@ jobs:
         shell: bash
         if: ${{ inputs.RUN_INTEGRATION_TESTS }}
         run: make integration
+
+  test-helmchart:
+    runs-on: ubuntu-latest
+    name: test-helmchart
+    if: ${{ inputs.RUN_HELMCHART_TEST }}
+    needs: ["setup"]
+    env:
+      REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
+      OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
+      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.bundle_version }}
+      OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v1
+        with:
+          go-version: ^1.16
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Go Build Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.setup.outputs.go_build }}
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+
+      - name: Go Mod Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.setup.outputs.go_mod }}
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+
+      - name: Download Binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: support-binaries
+          path: ${{ needs.setup.outputs.bin_dir }}
+
+      - name: Prepare Build Step
+        id: setup-build-step
+        run: |
+          # Setup Path
+          echo "${{ needs.setup.outputs.bin_dir }}" >> $GITHUB_PATH
+
+          # Make Binaries Executable
+          chmod +x ${{ needs.setup.outputs.bin_dir }}/*
+
+      - name: Test Helm Chart Deployment
+        shell: bash
+        run: make helmchart-test
