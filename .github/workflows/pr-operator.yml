@@ -176,7 +176,7 @@ jobs:
       - name: Set up Go 1.x
         uses: actions/setup-go@v1
         with:
-          go-version: ^1.16
+          go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -278,7 +278,7 @@ jobs:
       - name: Set up Go 1.x
         uses: actions/setup-go@v1
         with:
-          go-version: ^1.16
+          go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -372,7 +372,7 @@ jobs:
       - name: Set up Go 1.x
         uses: actions/setup-go@v1
         with:
-          go-version: ^1.16
+          go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -487,7 +487,7 @@ jobs:
       - name: Set up Go 1.x
         uses: actions/setup-go@v1
         with:
-          go-version: ^1.16
+          go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
         uses: actions/checkout@v2
