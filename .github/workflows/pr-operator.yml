@@ -14,7 +14,7 @@ on:
         type: string
       GO_VERSION:
         description: "Go version to use"
-        default: "^1.16"
+        default: "~1.16"
         required: false
         type: string
       RUN_UNIT_TESTS:
