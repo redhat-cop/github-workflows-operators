@@ -366,7 +366,7 @@ jobs:
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
-      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.bundle_version }}
+      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.operator_version }}
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go 1.x
@@ -481,7 +481,7 @@ jobs:
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
-      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.bundle_version }}
+      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.operator_version }}
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go 1.x
