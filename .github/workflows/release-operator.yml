@@ -619,6 +619,8 @@ jobs:
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       HELM_RELEASE_VERSION: ${{ needs.setup.outputs.operator_version }}
+      OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
+      OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -662,7 +664,7 @@ jobs:
           git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Publish Helm Repository
-        run: make helmchart-repo-push VERSION=${{ env.HELM_RELEASE_VERSION }} CHART_REPO_URL=https://${{ github.repository_owner }}.github.io/${{ env.REPOSITORY_NAME }} HELM_REPO_DEST=${{ env. HELM_REPO_DIR }}
+        run: make helmchart-repo-push VERSION=${{ env.HELM_RELEASE_VERSION }} IMG=${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }} CHART_REPO_URL=https://${{ github.repository_owner }}.github.io/${{ env.REPOSITORY_NAME }} HELM_REPO_DEST=${{ env. HELM_REPO_DIR }}
 
   operatorhub-release:
     runs-on: ubuntu-latest
