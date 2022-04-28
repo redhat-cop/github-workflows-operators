@@ -36,6 +36,7 @@ env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
   DEFAULT_OPERATOR_VERSION: "latest"
+  DEFAULT_HELMCHART_VERSION: "v0.0.1"
   HELM_REPO_DIR: "./tmp/gh-pages"
 
 jobs:
@@ -84,10 +85,12 @@ jobs:
             echo "::set-output name=tag_event::true"
             echo "::set-output name=operator_version::$TAG"
             echo "::set-output name=bundle_version::${TAG:1}"
+            echo "::set-output name=helmchart_version::${TAG:1}"
           else
             echo "::set-output name=tag_event::false"
             echo "::set-output name=operator_version::$DEFAULT_OPERATOR_VERSION"
             echo "::set-output name=bundle_version::$DEFAULT_BUNDLE_VERSION"
+            echo "::set-output name=helmchart_version::$DEFAULT_HELMCHART_VERSION"
           fi
 
       - name: Build Go Cache Paths
@@ -366,7 +369,7 @@ jobs:
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
-      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.operator_version }}
+      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.helmchart_version }}
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go 1.x
