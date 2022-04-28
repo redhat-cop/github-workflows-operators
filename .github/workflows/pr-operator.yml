@@ -85,13 +85,23 @@ jobs:
             echo "::set-output name=tag_event::true"
             echo "::set-output name=operator_version::$TAG"
             echo "::set-output name=bundle_version::${TAG:1}"
-            echo "::set-output name=helmchart_version::${TAG:1}"
+            echo "::set-output name=helmchart_version::$TAG"
           else
             echo "::set-output name=tag_event::false"
             echo "::set-output name=operator_version::$DEFAULT_OPERATOR_VERSION"
             echo "::set-output name=bundle_version::$DEFAULT_BUNDLE_VERSION"
             echo "::set-output name=helmchart_version::$DEFAULT_HELMCHART_VERSION"
           fi
+
+      - name: Verify Semver Bundle Version
+        uses: rubenesp87/semver-validation-action@0.0.6
+        with:
+          version: "${{ steps.set-variables-image.outputs.bundle_version }}"
+
+      - name: Verify Semver Helm Chart Version
+        uses: rubenesp87/semver-validation-action@0.0.6
+        with:
+          version: "${{ steps.set-variables-image.outputs.helmchart_version }}"
 
       - name: Build Go Cache Paths
         id: go-cache-paths
