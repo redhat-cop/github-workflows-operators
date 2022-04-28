@@ -36,6 +36,7 @@ env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
   DEFAULT_OPERATOR_VERSION: "latest"
+  DEFAULT_HELMCHART_VERSION: "v0.0.1"
   HELM_REPO_DIR: "./tmp/gh-pages"
 
 jobs:
@@ -84,11 +85,23 @@ jobs:
             echo "::set-output name=tag_event::true"
             echo "::set-output name=operator_version::$TAG"
             echo "::set-output name=bundle_version::${TAG:1}"
+            echo "::set-output name=helmchart_version::$TAG"
           else
             echo "::set-output name=tag_event::false"
             echo "::set-output name=operator_version::$DEFAULT_OPERATOR_VERSION"
             echo "::set-output name=bundle_version::$DEFAULT_BUNDLE_VERSION"
+            echo "::set-output name=helmchart_version::$DEFAULT_HELMCHART_VERSION"
           fi
+
+      - name: Verify Semver Bundle Version
+        uses: rubenesp87/semver-validation-action@0.0.6
+        with:
+          version: "${{ steps.set-variables-image.outputs.bundle_version }}"
+
+      - name: Verify Semver Helm Chart Version
+        uses: rubenesp87/semver-validation-action@0.0.6
+        with:
+          version: "${{ steps.set-variables-image.outputs.helmchart_version }}"
 
       - name: Build Go Cache Paths
         id: go-cache-paths
@@ -152,6 +165,7 @@ jobs:
       go_mod: ${{ steps.go-cache-paths.outputs.go-mod }}
       operator_version: ${{ steps.set-variables-image.outputs.operator_version }}
       bundle_version: ${{ steps.set-variables-image.outputs.bundle_version }}
+      helmchart_version: ${{ steps.set-variables-image.outputs.helmchart_version }}
       tag_event: ${{ steps.set-variables-image.outputs.tag_event }}
       dist_matrix: ${{ steps.set-variables.outputs.dist_matrix }}
       image_platform_tags: ${{ steps.set-variables.outputs.image_platform_tags }}
@@ -366,7 +380,7 @@ jobs:
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
-      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.operator_version }}
+      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.helmchart_version }}
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go 1.x
@@ -481,7 +495,7 @@ jobs:
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
-      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.operator_version }}
+      HELM_RELEASE_VERSION: ${{ needs.setup.outputs.helmchart_version }}
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go 1.x
