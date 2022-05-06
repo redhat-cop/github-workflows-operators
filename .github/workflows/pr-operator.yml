@@ -62,7 +62,7 @@ jobs:
         run: |
           if [ "${{ secrets.OPERATOR_IMAGE_REPOSITORY }}" == "" ]; then
             echo "::set-output name=operator_image_repository_name::${{ steps.set-variables.outputs.repository_name }}"
-            echo "::set-output name=operator_image_registry::quay.io/${{ github.repository_owner }}"
+            echo "::set-output name=operator_image_registry::quay.io/$(dirname $GITHUB_REPOSITORY)"
           else
             OPERATOR_IMAGE_REPOSITORY="${{ secrets.OPERATOR_IMAGE_REPOSITORY }}"
             echo "::set-output name=operator_image_repository_name::${OPERATOR_IMAGE_REPOSITORY##*/}"
@@ -71,7 +71,7 @@ jobs:
 
           if [ "${{ secrets.BUNDLE_IMAGE_REPOSITORY }}" == "" ]; then
             echo "::set-output name=bundle_image_repository_name::${{ steps.set-variables.outputs.repository_name }}-bundle"
-            echo "::set-output name=bundle_image_registry::quay.io/${{ github.repository_owner }}"
+            echo "::set-output name=bundle_image_registry::quay.io/$(dirname $GITHUB_REPOSITORY)"
 
           else
             BUNDLE_IMAGE_REPOSITORY="${{ secrets.BUNDLE_IMAGE_REPOSITORY }}"
@@ -481,7 +481,7 @@ jobs:
         shell: bash
         if: ${{ inputs.RUN_UNIT_TESTS }}
         run: make test
-      
+
       - name: Run integration tests
         shell: bash
         if: ${{ inputs.RUN_INTEGRATION_TESTS }}

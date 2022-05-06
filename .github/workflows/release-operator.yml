@@ -101,7 +101,7 @@ jobs:
         run: |
           if [ "${{ inputs.OPERATOR_IMAGE_REPOSITORY }}" == "" ]; then
             echo "::set-output name=operator_image_repository_name::${{ steps.set-variables.outputs.repository_name }}"
-            echo "::set-output name=operator_image_registry::quay.io/${{ github.repository_owner }}"
+            echo "::set-output name=operator_image_registry::quay.io/$(dirname $GITHUB_REPOSITORY)"
           else
             OPERATOR_IMAGE_REPOSITORY="${{ inputs.OPERATOR_IMAGE_REPOSITORY }}"
             echo "::set-output name=operator_image_repository_name::${OPERATOR_IMAGE_REPOSITORY##*/}"
@@ -110,7 +110,7 @@ jobs:
 
           if [ "${{ inputs.BUNDLE_IMAGE_REPOSITORY }}" == "" ]; then
             echo "::set-output name=bundle_image_repository_name::${{ steps.set-variables.outputs.repository_name }}-bundle"
-            echo "::set-output name=bundle_image_registry::quay.io/${{ github.repository_owner }}"
+            echo "::set-output name=bundle_image_registry::quay.io/$(dirname $GITHUB_REPOSITORY)"
 
           else
             BUNDLE_IMAGE_REPOSITORY="${{ inputs.BUNDLE_IMAGE_REPOSITORY }}"
@@ -357,7 +357,13 @@ jobs:
   build-bundle:
     runs-on: ubuntu-latest
     name: build-bundle
-    needs: ["setup", "test-operator", "build-operator", "process-operator-image-manifest"]
+    needs:
+      [
+        "setup",
+        "test-operator",
+        "build-operator",
+        "process-operator-image-manifest",
+      ]
     strategy:
       matrix:
         platform: ${{ fromJson(needs.setup.outputs.dist_matrix) }}
@@ -890,7 +896,7 @@ jobs:
         shell: bash
         if: ${{ inputs.RUN_UNIT_TESTS }}
         run: make test
-      
+
       - name: Run integration tests
         shell: bash
         if: ${{ inputs.RUN_INTEGRATION_TESTS }}
