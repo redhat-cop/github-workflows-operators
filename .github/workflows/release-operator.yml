@@ -448,7 +448,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: "Build Bundle Image"
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: ./bundle.Dockerfile
