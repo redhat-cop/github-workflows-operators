@@ -510,8 +510,12 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
           registry: ${{ env.OPERATOR_IMAGE_REGISTRY }}
 
+      - uses: sigstore/cosign-installer@main
+
       - name: "Append to Bundle Image Manifest"
         shell: bash
+        env:
+          COSIGN_EXPERIMENTAL: 1        
         run: |
           TAGS="latest ${{ env.BUNDLE_VERSION }}"
 
@@ -521,6 +525,8 @@ jobs:
                 podman manifest add ${{ env.BUNDLE_IMAGE_REPOSITORY }}:$TAG docker://${{ env.BUNDLE_IMAGE_REPOSITORY }}:${{ env.BUNDLE_VERSION }}-$PLATFORM; \
             done
             podman manifest push ${{ env.BUNDLE_IMAGE_REPOSITORY }}:$TAG docker://${{ env.BUNDLE_IMAGE_REPOSITORY }}:$TAG
+
+            cosign sign --recursive ${{ env.BUNDLE_IMAGE_REPOSITORY }}:$TAG docker://${{ env.BUNDLE_IMAGE_REPOSITORY }}:$TAG
           done
 
   package-helm:
