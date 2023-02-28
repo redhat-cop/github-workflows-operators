@@ -338,8 +338,12 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
           registry: ${{ env.OPERATOR_IMAGE_REGISTRY }}
 
+      - uses: sigstore/cosign-installer@main    
+
       - name: "Append to Image Manifest"
         shell: bash
+        env:
+          COSIGN_EXPERIMENTAL: 1        
         run: |
           TAGS="latest"
 
@@ -353,6 +357,9 @@ jobs:
                 podman manifest add ${{ env.OPERATOR_IMAGE_REPOSITORY }}:$TAG docker://${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }}-$PLATFORM; \
             done
             podman manifest push ${{ env.OPERATOR_IMAGE_REPOSITORY }}:$TAG docker://${{ env.OPERATOR_IMAGE_REPOSITORY }}:$TAG
+
+            cosign sign --recursive ${{ env.OPERATOR_IMAGE_REPOSITORY }}:$TAG docker://${{ env.OPERATOR_IMAGE_REPOSITORY }}:$TAG
+
           done
 
   build-bundle:
@@ -456,6 +463,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           tags: "${{ env.BUNDLE_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }},${{ env.BUNDLE_IMAGE_REPOSITORY }}:${{ env.BUNDLE_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}"
+
 
       - name: Prepare Distribution Artifacts
         shell: bash
