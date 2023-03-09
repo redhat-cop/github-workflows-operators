@@ -49,48 +49,48 @@ jobs:
         env:
           BUILD_PLATFORMS: ${{ inputs.BUILD_PLATFORMS }}
         run: |
-          echo "::set-output name=repository_name::$(basename $GITHUB_REPOSITORY)"
-          echo "::set-output name=bin_dir::$(pwd)/bin"
+          echo "repository_name=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_OUTPUT
+          echo "bin_dir=$(pwd)/bin" >> $GITHUB_OUTPUT
 
           # Create Distribution Matrix
-          echo "::set-output name=dist_matrix::$(echo -n "${{ env.BUILD_PLATFORMS }}" | jq -csR '. | split(",")')"
+          echo "dist_matrix=$(echo -n "${{ env.BUILD_PLATFORMS }}" | jq -csR '. | split(",")')" >> $GITHUB_OUTPUT
           # Create Image Tags
-          echo "::set-output name=image_platform_tags::$(echo $BUILD_PLATFORMS | sed  -e 's/,/ /g' -e 's/\//-/g')"
+          echo "image_platform_tags=$(echo $BUILD_PLATFORMS | sed  -e 's/,/ /g' -e 's/\//-/g')" >> $GITHUB_OUTPUT
 
       - name: Setting Image Variables
         id: set-variables-image
         run: |
           if [ "${{ secrets.OPERATOR_IMAGE_REPOSITORY }}" == "" ]; then
-            echo "::set-output name=operator_image_repository_name::${{ steps.set-variables.outputs.repository_name }}"
-            echo "::set-output name=operator_image_registry::quay.io/$(dirname $GITHUB_REPOSITORY)"
+            echo "operator_image_repository_name=${{ steps.set-variables.outputs.repository_name }}" >> $GITHUB_OUTPUT
+            echo "operator_image_registry=quay.io/$(dirname $GITHUB_REPOSITORY)" >> $GITHUB_OUTPUT
           else
             OPERATOR_IMAGE_REPOSITORY="${{ secrets.OPERATOR_IMAGE_REPOSITORY }}"
-            echo "::set-output name=operator_image_repository_name::${OPERATOR_IMAGE_REPOSITORY##*/}"
-            echo "::set-output name=operator_image_registry::${OPERATOR_IMAGE_REPOSITORY%/*}"
+            echo "operator_image_repository_name=${OPERATOR_IMAGE_REPOSITORY##*/}" >> $GITHUB_OUTPUT
+            echo "operator_image_registry=${OPERATOR_IMAGE_REPOSITORY%/*}" >> $GITHUB_OUTPUT
           fi
 
           if [ "${{ secrets.BUNDLE_IMAGE_REPOSITORY }}" == "" ]; then
-            echo "::set-output name=bundle_image_repository_name::${{ steps.set-variables.outputs.repository_name }}-bundle"
-            echo "::set-output name=bundle_image_registry::quay.io/$(dirname $GITHUB_REPOSITORY)"
+            echo "bundle_image_repository_name=${{ steps.set-variables.outputs.repository_name }}-bundle" >> $GITHUB_OUTPUT
+            echo "bundle_image_registry=quay.io/$(dirname $GITHUB_REPOSITORY)" >> $GITHUB_OUTPUT
 
           else
             BUNDLE_IMAGE_REPOSITORY="${{ secrets.BUNDLE_IMAGE_REPOSITORY }}"
-            echo "::set-output name=bundle_image_repository_name::${BUNDLE_IMAGE_REPOSITORY##*/}"
-            echo "::set-output name=bundle_image_registry::${BUNDLE_IMAGE_REPOSITORY%/*}"
+            echo "bundle_image_repository_name=${BUNDLE_IMAGE_REPOSITORY##*/}" >> $GITHUB_OUTPUT
+            echo "bundle_image_registry=${BUNDLE_IMAGE_REPOSITORY%/*}" >> $GITHUB_OUTPUT
           fi
 
           # Set versions based on presence of tag
           if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then
             TAG="${GITHUB_REF/refs\/tags\//}"
-            echo "::set-output name=tag_event::true"
-            echo "::set-output name=operator_version::$TAG"
-            echo "::set-output name=bundle_version::${TAG:1}"
-            echo "::set-output name=helmchart_version::$TAG"
+            echo "tag_event=true" >> $GITHUB_OUTPUT
+            echo "operator_version=$TAG" >> $GITHUB_OUTPUT
+            echo "bundle_version=${TAG:1}" >> $GITHUB_OUTPUT
+            echo "helmchart_version=$TAG" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=tag_event::false"
-            echo "::set-output name=operator_version::$DEFAULT_OPERATOR_VERSION"
-            echo "::set-output name=bundle_version::$DEFAULT_BUNDLE_VERSION"
-            echo "::set-output name=helmchart_version::$DEFAULT_HELMCHART_VERSION"
+            echo "tag_event=false" >> $GITHUB_OUTPUT
+            echo "operator_version=$DEFAULT_OPERATOR_VERSION" >> $GITHUB_OUTPUT
+            echo "bundle_version=$DEFAULT_BUNDLE_VERSION" >> $GITHUB_OUTPUT
+            echo "helmchart_version=$DEFAULT_HELMCHART_VERSION" >> $GITHUB_OUTPUT
           fi
 
       - name: Verify Semver Bundle Version
@@ -106,8 +106,8 @@ jobs:
       - name: Build Go Cache Paths
         id: go-cache-paths
         run: |
-          echo "::set-output name=go-build::$(go env GOCACHE)"
-          echo "::set-output name=go-mod::$(go env GOMODCACHE)"
+          echo "go-build=$(go env GOCACHE)" >> $GITHUB_OUTPUT
+          echo "go-mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v1
@@ -223,8 +223,8 @@ jobs:
           chmod +x ${{ needs.setup.outputs.bin_dir }}/*
 
           # Configure Platform Variables
-          echo "::set-output name=platform_os::$(echo ${{ matrix.platform }} |  cut -d/ -f1)"
-          echo "::set-output name=platform_arch::$(echo ${{ matrix.platform }} |  cut -d/ -f2)"
+          echo "platform_os=$(echo ${{ matrix.platform }} |  cut -d/ -f1)" >> $GITHUB_OUTPUT
+          echo "platform_arch=$(echo ${{ matrix.platform }} |  cut -d/ -f2)" >> $GITHUB_OUTPUT
 
       - name: Download Dependencies
         shell: bash
@@ -326,8 +326,8 @@ jobs:
           chmod +x ${{ needs.setup.outputs.bin_dir }}/*
 
           # Configure Platform Variables
-          echo "::set-output name=platform_os::$(echo ${{ matrix.platform }} |  cut -d/ -f1)"
-          echo "::set-output name=platform_arch::$(echo ${{ matrix.platform }} |  cut -d/ -f2)"
+          echo "platform_os=$(echo ${{ matrix.platform }} |  cut -d/ -f1)" >> $GITHUB_OUTPUT
+          echo "platform_arch=$(echo ${{ matrix.platform }} |  cut -d/ -f2)" >> $GITHUB_OUTPUT
 
       - name: build bundle
         shell: bash
