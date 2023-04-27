@@ -115,7 +115,7 @@ jobs:
           else
             BUNDLE_IMAGE_REPOSITORY="${{ inputs.BUNDLE_IMAGE_REPOSITORY }}"
             echo "bundle_image_repository_name=${BUNDLE_IMAGE_REPOSITORY##*/}" >> $GITHUB_OUTPUT
-            echo "bundle_image_registry=${BUNDLE_IMAGE_REPOSITORY%/*}">> $GITHUB_OUTPUT
+            echo "bundle_image_registry=${BUNDLE_IMAGE_REPOSITORY%/*}" >> $GITHUB_OUTPUT
           fi
 
           # Set versions based on presence of tag
