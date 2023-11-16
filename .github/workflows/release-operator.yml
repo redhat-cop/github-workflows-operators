@@ -133,12 +133,12 @@ jobs:
           fi
 
       - name: Verify Semver Bundle Version
-        uses: rubenesp87/semver-validation-action@0.0.6
+        uses: rubenesp87/semver-validation-action@0.1.0
         with:
           version: "${{ steps.set-variables-image.outputs.bundle_version }}"
 
       - name: Verify Semver Helm Chart Version
-        uses: rubenesp87/semver-validation-action@0.0.6
+        uses: rubenesp87/semver-validation-action@0.1.0
         with:
           version: "${{ steps.set-variables-image.outputs.helmchart_version }}"
 
@@ -148,22 +148,22 @@ jobs:
           echo "go-build=$(go env GOCACHE)" >> $GITHUB_OUTPUT
           echo "go-mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
 
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v1
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Go Build Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.go-cache-paths.outputs.go-build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.go-cache-paths.outputs.go-mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -188,7 +188,7 @@ jobs:
           make kustomize
 
       - name: Upload Support Binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: support-binaries
           path: ${{ steps.set-variables.outputs.bin_dir }}
@@ -225,28 +225,28 @@ jobs:
       BUNDLE_IMAGE_REGISTRY: ${{ needs.setup.outputs.bundle_image_registry }}
 
     steps:
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v1
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Go Build Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Support Binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -313,7 +313,7 @@ jobs:
           mv bin/manager dist/${{ env.REPOSITORY_NAME }}-manager-${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
 
       - name: Upload Dist
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
@@ -377,28 +377,28 @@ jobs:
       BUNDLE_IMAGE_REPOSITORY: "${{ needs.setup.outputs.bundle_image_registry }}/${{ needs.setup.outputs.bundle_image_repository_name }}"
       BUNDLE_IMAGE_REGISTRY: ${{ needs.setup.outputs.bundle_image_registry }}
     steps:
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v1
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Go Build Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -470,7 +470,7 @@ jobs:
           rm -Rf ${{ env.REPOSITORY_NAME }}-bundle-${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
 
       - name: Upload Dist
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
@@ -525,28 +525,28 @@ jobs:
       HELM_RELEASE_VERSION: ${{ needs.setup.outputs.helmchart_version }}
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v1
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Go Build Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -571,7 +571,7 @@ jobs:
           helm package -d dist ./charts/${{ env.REPOSITORY_NAME }}
 
       - name: Upload Dist
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
@@ -594,14 +594,14 @@ jobs:
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Fetch Code
         run: |
           git fetch --prune --unshallow
 
       - name: Download Dist Directory
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist
@@ -639,22 +639,22 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Checkout gh-pages Branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: ${{ env.HELM_REPO_DIR }}
           ref: gh-pages
 
       - name: Download Workspace Binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: support-binaries
           path: bin
 
       - name: Download Dist Directory
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist
@@ -695,10 +695,10 @@ jobs:
       BUNDLE_VERSION: ${{ needs.setup.outputs.bundle_version }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Checkout Community Operators
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: ${{ env.COMMUNITY_OPERATORS_ORGANIZATION_NAME }}/${{ env.COMMUNITY_OPERATORS_REPOSITORY_NAME }}
           path: ./tmp/${{ env.COMMUNITY_OPERATORS_REPOSITORY_NAME }}
@@ -718,7 +718,7 @@ jobs:
           echo "pull-request-body="$(echo $PR_REQUEST_BODY)"" >> $GITHUB_OUTPUT
 
       - name: Download Dist Directory
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist
@@ -859,28 +859,28 @@ jobs:
     env:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
     steps:
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v1
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Go Build Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -915,28 +915,28 @@ jobs:
       HELM_RELEASE_VERSION: ${{ needs.setup.outputs.helmchart_version }}
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
-      - name: Set up Go 1.x
-        uses: actions/setup-go@v1
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ inputs.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Go Build Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
