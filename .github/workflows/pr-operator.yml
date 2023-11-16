@@ -239,10 +239,10 @@ jobs:
         run: make
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
         with:
           buildkitd-flags: --debug
 
@@ -255,6 +255,23 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: false
           tags: "${{ env.OPERATOR_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }},${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}"
+          load: true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.14.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.OPERATOR_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
+          format: "cosign-vuln"
+          output: "operator-cosignvuln.json"
+
+      - name: Run Trivy SBOM generator
+        uses: aquasecurity/trivy-action@0.14.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.OPERATOR_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
+          format: "spdx-json"
+          output: "operator-spdxjson.json"
 
       - name: Prepare Distribution Artifacts
         shell: bash
@@ -264,12 +281,21 @@ jobs:
 
           # Move and Rename Manager Binary
           mv bin/manager dist/${{ env.REPOSITORY_NAME }}-manager-${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
+          
+          mkdir attestation
+          mv operator-*.json attestation
 
       - name: Upload Dist
         uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
+
+      - name: Upload attestation
+        uses: actions/upload-artifact@v3
+        with:
+          name: attestation
+          path: attestation
 
   build-bundle:
     runs-on: ubuntu-latest
@@ -339,10 +365,10 @@ jobs:
         run: operator-sdk bundle validate ./bundle --select-optional name=operatorhub
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
       - name: "Build Bundle Image"
         uses: docker/build-push-action@v3
@@ -353,6 +379,23 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: false
           tags: "${{ env.BUNDLE_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }},${{ env.BUNDLE_IMAGE_REPOSITORY }}:${{ env.BUNDLE_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}"
+          load: true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.14.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.BUNDLE_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
+          format: "cosign-vuln"
+          output: "bundle-cosignvuln.json"
+
+      - name: Run Trivy SBOM generator
+        uses: aquasecurity/trivy-action@0.14.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.BUNDLE_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
+          format: "spdx-json"
+          output: "bundle-spdxjson.json"
 
       - name: Prepare Distribution Artifacts
         shell: bash
@@ -365,12 +408,21 @@ jobs:
           tar -czvf ${{ env.REPOSITORY_NAME }}-bundle-${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}.tar.gz ${{ env.REPOSITORY_NAME }}-bundle-${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           mv ${{ env.REPOSITORY_NAME }}-bundle-${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}.tar.gz dist
           rm -Rf ${{ env.REPOSITORY_NAME }}-bundle-${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
+          
+          mkdir attestation
+          mv bundle-*.json attestation
 
       - name: Upload Dist
         uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
+
+      - name: Upload attestation
+        uses: actions/upload-artifact@v3
+        with:
+          name: attestation
+          path: attestation
 
   package-helm:
     runs-on: ubuntu-latest
