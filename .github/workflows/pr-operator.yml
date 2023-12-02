@@ -247,7 +247,7 @@ jobs:
           buildkitd-flags: --debug
 
       - name: "Build Operator Image"
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: "./ci.Dockerfile"
@@ -371,7 +371,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: "Build Bundle Image"
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./bundle.Dockerfile
