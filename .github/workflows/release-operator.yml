@@ -93,6 +93,7 @@ jobs:
 
           # Create Distribution Matrix
           echo "dist_matrix=$(echo -n "${{ env.BUILD_PLATFORMS }}" | jq -csR '. | split(",")')" >> $GITHUB_OUTPUT
+          echo "dist_matrix_dash=$(echo -n "${{ env.BUILD_PLATFORMS }}" | tr '/' '-' | jq -csR '. | split(",")')" >> $GITHUB_OUTPUT
           # Create Image Tags
           echo "image_platform_tags=$(echo $BUILD_PLATFORMS | sed  -e 's/,/ /g' -e 's/\//-/g')" >> $GITHUB_OUTPUT
 
@@ -206,6 +207,7 @@ jobs:
       helmchart_version: ${{ steps.set-variables-image.outputs.helmchart_version }}
       tag_event: ${{ steps.set-variables-image.outputs.tag_event }}
       dist_matrix: ${{ steps.set-variables.outputs.dist_matrix }}
+      dist_matrix_dash: ${{ steps.set-variables.outputs.dist_matrix_dash }}
       image_platform_tags: ${{ steps.set-variables.outputs.image_platform_tags }}
 
   build-operator:
@@ -373,6 +375,38 @@ jobs:
         with:
           name: dist
           path: dist
+
+      - name: Output digests
+        id: digests
+        run: |
+          platform=${{ matrix.platform }}
+          echo "digest-${platform/\//-}=${{ steps.build_push.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
+    # Need to be named, see: https://github.com/slsa-framework/slsa-github-generator/blob/v1.9.0/internal/builders/generic/README.md#a-different-attestation-for-each-iteration
+    outputs:
+      linux-amd64: ${{ steps.digests.outputs.digest-linux-amd64 }}
+      linux-arm64: ${{ steps.digests.outputs.digest-linux-arm64 }}
+      linux-ppc64le: ${{ steps.digests.outputs.digest-linux-ppc64le }}
+      linux-s390x: ${{ steps.digests.outputs.digest-linux-s390x }}
+      image_uri: ${{ env.OPERATOR_IMAGE_REPOSITORY }}
+
+  provenance-operator:
+    needs: ["setup","build-operator"]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    strategy:
+      matrix:
+        platform: ${{ fromJson(needs.setup.outputs.dist_matrix_dash) }}
+    # https://github.com/slsa-framework/slsa-github-generator/blob/v1.9.0/internal/builders/container/README.md#referencing-the-slsa-generator
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ${{ needs.build-operator.outputs.image_uri }}
+      digest: ${{ needs.build-operator.outputs[format('{0}', matrix.platform)] }}
+    secrets:
+      registry-username: ${{ secrets.REGISTRY_USERNAME }}
+      registry-password: ${{ secrets.REGISTRY_PASSWORD }}
 
   process-operator-image-manifest:
     runs-on: ubuntu-latest
@@ -574,6 +608,38 @@ jobs:
         with:
           name: dist
           path: dist
+
+      - name: Output digests
+        id: digests
+        run: |
+          platform=${{ matrix.platform }}
+          echo "digest-${platform/\//-}=${{ steps.build_push.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
+    # Need to be named, see: https://github.com/slsa-framework/slsa-github-generator/blob/v1.9.0/internal/builders/generic/README.md#a-different-attestation-for-each-iteration
+    outputs:
+      linux-amd64: ${{ steps.digests.outputs.digest-linux-amd64 }}
+      linux-arm64: ${{ steps.digests.outputs.digest-linux-arm64 }}
+      linux-ppc64le: ${{ steps.digests.outputs.digest-linux-ppc64le }}
+      linux-s390x: ${{ steps.digests.outputs.digest-linux-s390x }}
+      image_uri: ${{ env.BUNDLE_IMAGE_REPOSITORY }}
+
+  provenance-bundle:
+    needs: ["setup","build-bundle"]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    strategy:
+      matrix:
+        platform: ${{ fromJson(needs.setup.outputs.dist_matrix_dash) }}
+    # https://github.com/slsa-framework/slsa-github-generator/blob/v1.9.0/internal/builders/container/README.md#referencing-the-slsa-generator
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ${{ needs.build-bundle.outputs.image_uri }}
+      digest: ${{ needs.build-bundle.outputs[format('{0}', matrix.platform)] }}
+    secrets:
+      registry-username: ${{ secrets.REGISTRY_USERNAME }}
+      registry-password: ${{ secrets.REGISTRY_PASSWORD }}
 
   process-bundle-image-manifest:
     runs-on: ubuntu-latest
