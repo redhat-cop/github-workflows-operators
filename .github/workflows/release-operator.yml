@@ -223,6 +223,9 @@ jobs:
       OPERATOR_IMAGE_REGISTRY: ${{ needs.setup.outputs.operator_image_registry }}
       BUNDLE_IMAGE_REPOSITORY: "${{ needs.setup.outputs.bundle_image_registry }}/${{ needs.setup.outputs.bundle_image_repository_name }}"
       BUNDLE_IMAGE_REGISTRY: ${{ needs.setup.outputs.bundle_image_registry }}
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Set up Go
@@ -232,6 +235,18 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@v4
+
+      - name: Validate variables
+        run: |          
+          if [ "${{ needs.setup.outputs.operator_image_registry }}" == "" ]; then
+            echo "Required setup outputs 'operator_image_registry' is not set. Check setup 'Complete Job' step."
+            exit 1
+          fi
+          
+          if [ "${{ needs.setup.outputs.bundle_image_registry }}" == "" ]; then
+            echo "Required setup outputs 'bundle_image_registry' is not set. Check setup 'Complete Job' step."
+            exit 1
+          fi
 
       - name: Go Build Cache
         uses: actions/cache@v3
@@ -280,14 +295,18 @@ jobs:
         run: make
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
         with:
           buildkitd-flags: --debug
+
+      - name: Setup cosign
+        uses: sigstore/cosign-installer@v3
+
       - name: Login to Operator Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.OPERATOR_IMAGE_REGISTRY }}
           username: ${{ secrets.REGISTRY_USERNAME }}
@@ -295,6 +314,7 @@ jobs:
 
       - name: "Build Operator Image"
         uses: docker/build-push-action@v3
+        id: build_push
         with:
           context: .
           file: "./ci.Dockerfile"
@@ -302,6 +322,42 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           tags: "${{ env.OPERATOR_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }},${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}"
+
+      - name: Sign Operator Image
+        id: sign_operator
+        env:
+          IMAGE_URI: ${{ env.OPERATOR_IMAGE_REPOSITORY }}@${{ steps.build_push.outputs.digest }}
+        run: |
+          cosign sign --yes ${IMAGE_URI}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.14.0
+        env:
+          TRIVY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          TRIVY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        with:
+          scan-type: image
+          image-ref: ${{ env.OPERATOR_IMAGE_REPOSITORY }}@${{ steps.build_push.outputs.digest }}
+          format: "cosign-vuln"
+          output: "cosign-vuln.json"
+
+      - name: Run Trivy SBOM generator
+        uses: aquasecurity/trivy-action@0.14.0
+        env:
+          TRIVY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          TRIVY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        with:
+          scan-type: image
+          image-ref: ${{ env.OPERATOR_IMAGE_REPOSITORY }}@${{ steps.build_push.outputs.digest }}
+          format: "spdx-json"
+          output: "spdx-json.json"
+
+      - name: Attach attestations for Operator Image
+        env:
+          IMAGE_URI: ${{ env.OPERATOR_IMAGE_REPOSITORY }}@${{ steps.build_push.outputs.digest }}
+        run: |
+          cosign attest --yes --type vuln --predicate cosign-vuln.json ${IMAGE_URI}
+          cosign attest --yes --type spdx --predicate spdx-json.json ${IMAGE_URI}
 
       - name: Prepare Distribution Artifacts
         shell: bash
@@ -376,6 +432,10 @@ jobs:
       OPERATOR_IMAGE_REGISTRY: ${{ needs.setup.outputs.operator_image_registry }}
       BUNDLE_IMAGE_REPOSITORY: "${{ needs.setup.outputs.bundle_image_registry }}/${{ needs.setup.outputs.bundle_image_repository_name }}"
       BUNDLE_IMAGE_REGISTRY: ${{ needs.setup.outputs.bundle_image_registry }}
+    permissions:
+      contents: read
+      id-token: write
+      
     steps:
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -435,13 +495,16 @@ jobs:
         run: operator-sdk bundle validate ./bundle --select-optional name=operatorhub
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
+
+      - name: Setup cosign
+        uses: sigstore/cosign-installer@v3
 
       - name: Login to Bundle Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.BUNDLE_IMAGE_REGISTRY }}
           username: ${{ secrets.REGISTRY_USERNAME }}
@@ -449,6 +512,7 @@ jobs:
 
       - name: "Build Bundle Image"
         uses: docker/build-push-action@v3
+        id: build_push
         with:
           context: .
           file: ./bundle.Dockerfile
@@ -456,6 +520,42 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           tags: "${{ env.BUNDLE_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }},${{ env.BUNDLE_IMAGE_REPOSITORY }}:${{ env.BUNDLE_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}"
+
+      - name: Sign Bundle Image
+        id: sign_bundle
+        env:
+          IMAGE_URI: ${{ env.BUNDLE_IMAGE_REPOSITORY }}@${{ steps.build_push.outputs.digest }}
+        run: |
+          cosign sign --yes ${IMAGE_URI}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.14.0
+        env:
+          TRIVY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          TRIVY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        with:
+          scan-type: image
+          image-ref: ${{ env.BUNDLE_IMAGE_REPOSITORY }}@${{ steps.build_push.outputs.digest }}
+          format: "cosign-vuln"
+          output: "cosign-vuln.json"
+
+      - name: Run Trivy SBOM generator
+        uses: aquasecurity/trivy-action@0.14.0
+        env:
+          TRIVY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          TRIVY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        with:
+          scan-type: image
+          image-ref: ${{ env.BUNDLE_IMAGE_REPOSITORY }}@${{ steps.build_push.outputs.digest }}
+          format: "spdx-json"
+          output: "spdx-json.json"
+
+      - name: Attach attestations for Bundle Image
+        env:
+          IMAGE_URI: ${{ env.BUNDLE_IMAGE_REPOSITORY }}@${{ steps.build_push.outputs.digest }}
+        run: |
+          cosign attest --yes --type vuln --predicate cosign-vuln.json ${IMAGE_URI}
+          cosign attest --yes --type spdx --predicate spdx-json.json ${IMAGE_URI}
 
       - name: Prepare Distribution Artifacts
         shell: bash
