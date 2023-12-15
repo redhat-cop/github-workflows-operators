@@ -263,7 +263,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Support Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -492,7 +492,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -712,7 +712,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -767,7 +767,7 @@ jobs:
           git fetch --prune --unshallow
 
       - name: Download Dist Directory
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v3
         with:
           name: dist
           path: dist
@@ -814,13 +814,13 @@ jobs:
           ref: gh-pages
 
       - name: Download Workspace Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v3
         with:
           name: support-binaries
           path: bin
 
       - name: Download Dist Directory
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v3
         with:
           name: dist
           path: dist
@@ -884,7 +884,7 @@ jobs:
           echo "pull-request-body="$(echo $PR_REQUEST_BODY)"" >> $GITHUB_OUTPUT
 
       - name: Download Dist Directory
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v3
         with:
           name: dist
           path: dist
@@ -1046,7 +1046,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -1102,7 +1102,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4 # v3
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
