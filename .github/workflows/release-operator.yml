@@ -4,7 +4,8 @@ on:
     inputs:
       OPERATOR_SDK_VERSION:
         description: "Version of Operator SDK Binary for installation"
-        default: "v1.9.0"
+        # renovate: datasource=github-releases depName=operator-framework/operator-sdk
+        default: "v1.32.0"
         required: false
         type: string
       BUILD_PLATFORMS:
@@ -14,7 +15,8 @@ on:
         type: string
       GO_VERSION:
         description: "Go version to use"
-        default: "~1.16"
+        # renovate: datasource=golang-version depName=go
+        default: "1.21"
         required: false
         type: string
       PR_ACTOR:
@@ -150,9 +152,10 @@ jobs:
           echo "go-mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
 
       - name: Set up Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
+          cache: false
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -231,9 +234,10 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
+          cache: false
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -472,9 +476,10 @@ jobs:
       
     steps:
       - name: Set up Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
+          cache: false
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -692,9 +697,10 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
+          cache: false
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -1026,9 +1032,10 @@ jobs:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
     steps:
       - name: Set up Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
+          cache: false
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
@@ -1082,9 +1089,10 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
+          cache: false
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
