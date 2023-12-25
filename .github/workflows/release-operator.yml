@@ -520,7 +520,7 @@ jobs:
         run: make bundle IMG=${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }} VERSION=${{ env.BUNDLE_VERSION }} DEFAULT_CHANNEL=${{ env.DEFAULT_BUNDLE_CHANNEL }}
 
       - name: Process Bundle for Disconnected Support
-        uses: redhat-cop/github-actions/disconnected-csv@master
+        uses: redhat-cop/github-actions/disconnected-csv@11f2ce27643eb7c76ac3623cb99d9b08be30d762 # v4
         with:
           CSV_FILE: bundle/manifests/${{ env.REPOSITORY_NAME }}.clusterserviceversion.yaml
           TAGS_TO_DIGESTS: ${OPERATOR_VERSION}
