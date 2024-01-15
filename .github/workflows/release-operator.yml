@@ -192,7 +192,7 @@ jobs:
           make kustomize
 
       - name: Upload Support Binaries
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595 # v3
         with:
           name: support-binaries
           path: ${{ steps.set-variables.outputs.bin_dir }}
@@ -375,7 +375,7 @@ jobs:
           mv bin/manager dist/${{ env.REPOSITORY_NAME }}-manager-${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
 
       - name: Upload Dist
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595 # v3
         with:
           name: dist
           path: dist
@@ -609,7 +609,7 @@ jobs:
           rm -Rf ${{ env.REPOSITORY_NAME }}-bundle-${{ env.OPERATOR_VERSION }}-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
 
       - name: Upload Dist
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595 # v3
         with:
           name: dist
           path: dist
@@ -743,7 +743,7 @@ jobs:
           helm package -d dist ./charts/${{ env.REPOSITORY_NAME }}
 
       - name: Upload Dist
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595 # v3
         with:
           name: dist
           path: dist
