@@ -34,6 +34,11 @@ on:
         default: false
         required: false
         type: boolean
+      CHECKOUT_CODE:
+        description: "Repository to checkout"
+        default: "${{ github.repository }}"
+        required: false
+        type: string
 env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
@@ -46,18 +51,26 @@ jobs:
     runs-on: ubuntu-latest
     name: setup
     steps:
+      - name: Check out code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
+          
       - name: Setting Workflow Variables
         id: set-variables
         env:
           BUILD_PLATFORMS: ${{ inputs.BUILD_PLATFORMS }}
+          CHECKOUT_CODE: ${{ inputs.CHECKOUT_CODE }}
         run: |
-          echo "repository_name=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_OUTPUT
+          echo "repository_name=$(basename ${{ env.CHECKOUT_CODE }})" >> $GITHUB_OUTPUT
           echo "bin_dir=$(pwd)/bin" >> $GITHUB_OUTPUT
 
           # Create Distribution Matrix
           echo "dist_matrix=$(echo -n "${{ env.BUILD_PLATFORMS }}" | jq -csR '. | split(",")')" >> $GITHUB_OUTPUT
           # Create Image Tags
           echo "image_platform_tags=$(echo $BUILD_PLATFORMS | sed  -e 's/,/ /g' -e 's/\//-/g')" >> $GITHUB_OUTPUT
+          
+          echo "$(cat ${GITHUB_OUTPUT})"
 
       - name: Setting Image Variables
         id: set-variables-image
@@ -94,6 +107,8 @@ jobs:
             echo "bundle_version=$DEFAULT_BUNDLE_VERSION" >> $GITHUB_OUTPUT
             echo "helmchart_version=$DEFAULT_HELMCHART_VERSION" >> $GITHUB_OUTPUT
           fi
+          
+          echo "$(cat ${GITHUB_OUTPUT})"
 
       - name: Verify Semver Bundle Version
         uses: rubenesp87/semver-validation-action@8f4b9f2835a4826fbbdfe8f5dbb6ad8996cf5831 # 0.1.0
@@ -116,9 +131,6 @@ jobs:
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
-
-      - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -195,6 +207,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -325,6 +339,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -447,6 +463,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -479,7 +497,7 @@ jobs:
         shell: bash
         run: |
           # Render Helm Chart
-          make helmchart VERSION=${{ env.HELM_RELEASE_VERSION }} IMG=${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }}
+          make helmchart OPERATOR_NAME=${{ env.REPOSITORY_NAME }} VERSION=${{ env.HELM_RELEASE_VERSION }} IMG=${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }}
 
           # Package Helm Chart
           mkdir dist
@@ -507,6 +525,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -564,6 +584,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -594,4 +616,4 @@ jobs:
 
       - name: Test Helm Chart Deployment
         shell: bash
-        run: make helmchart-test
+        run: make helmchart-test OPERATOR_NAME=${{ env.REPOSITORY_NAME }}
