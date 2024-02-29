@@ -34,6 +34,11 @@ on:
         default: false
         required: false
         type: boolean
+      CHECKOUT_CODE:
+        description: "Repository to checkout"
+        default: "${{ github.repository }}"
+        required: false
+        type: string
 env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
@@ -119,6 +124,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -195,6 +202,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -325,6 +334,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -447,6 +458,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -507,6 +520,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -564,6 +579,8 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
