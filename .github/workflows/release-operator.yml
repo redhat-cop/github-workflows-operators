@@ -426,7 +426,7 @@ jobs:
       BUNDLE_IMAGE_REGISTRY: ${{ needs.setup.outputs.bundle_image_registry }}
     steps:
       - name: Log in to Registry
-        uses: redhat-actions/podman-login@9184318aae1ee5034fbfbacc0388acf12669171f # v1
+        uses: redhat-actions/podman-login@4934294ad0449894bcd1e9f191899d7292469603 # v1
         with:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
@@ -667,7 +667,7 @@ jobs:
       BUNDLE_IMAGE_REGISTRY: ${{ needs.setup.outputs.bundle_image_registry }}
     steps:
       - name: Log in to Registry
-        uses: redhat-actions/podman-login@9184318aae1ee5034fbfbacc0388acf12669171f # v1
+        uses: redhat-actions/podman-login@4934294ad0449894bcd1e9f191899d7292469603 # v1
         with:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
