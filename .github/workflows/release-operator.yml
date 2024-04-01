@@ -922,7 +922,7 @@ jobs:
           /bin/cp -v -R ./config/community-operators/ci.yaml ./tmp/${{ env.COMMUNITY_OPERATORS_REPOSITORY_NAME }}/operators/${{ env.REPOSITORY_NAME }}
 
       - name: Create Pull Request (First Release)
-        uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5
+        uses: peter-evans/create-pull-request@70a41aba780001da0a30141984ae2a0c95d8704e # v5
         if: ${{ steps.check-first-release.outputs.first_release == 'true' }}
         with:
           path: ./tmp/${{ env.COMMUNITY_OPERATORS_REPOSITORY_NAME }}
@@ -973,7 +973,7 @@ jobs:
           token: ${{ secrets.COMMUNITY_OPERATOR_PAT }}
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5
+        uses: peter-evans/create-pull-request@70a41aba780001da0a30141984ae2a0c95d8704e # v5
         if: ${{ steps.check-first-release.outputs.first_release != 'true' }}
         with:
           path: ./tmp/${{ env.COMMUNITY_OPERATORS_REPOSITORY_NAME }}
