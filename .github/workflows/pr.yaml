@@ -1,0 +1,17 @@
+name: Testing
+on: [pull_request]
+
+# Declare default permissions as read only.
+permissions: read-all
+
+jobs:
+  pr-workflow:
+    name: Test PR shared-operator-workflow
+    uses: ./.github/workflows/pr-operator.yml
+    with: 
+      RUN_UNIT_TESTS: true
+      RUN_INTEGRATION_TESTS: false
+      RUN_HELMCHART_TEST: false
+      GO_VERSION: ~1.21
+      OPERATOR_SDK_VERSION: v1.23.0
+      CHECKOUT_CODE: "redhat-cop/group-sync-operator"
