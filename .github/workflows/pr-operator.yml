@@ -118,7 +118,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -194,7 +194,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -324,7 +324,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -446,7 +446,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -506,7 +506,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
@@ -563,7 +563,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Go Build Cache
         uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
