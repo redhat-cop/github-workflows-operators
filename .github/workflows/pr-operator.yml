@@ -161,10 +161,11 @@ jobs:
           make controller-gen
 
       - name: Upload Support Binaries
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
           name: support-binaries
           path: ${{ steps.set-variables.outputs.bin_dir }}
+          retention-days: 1
 
     outputs:
       repository_name: ${{ steps.set-variables.outputs.repository_name }}
@@ -223,7 +224,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Support Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -281,7 +282,7 @@ jobs:
           scan-type: image
           image-ref: ${{ env.OPERATOR_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           format: "cosign-vuln"
-          output: "operator-cosignvuln.json"
+          output: "operator-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}-cosignvuln.json"
 
       - name: Run Trivy SBOM generator
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
@@ -289,7 +290,7 @@ jobs:
           scan-type: image
           image-ref: ${{ env.OPERATOR_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           format: "spdx-json"
-          output: "operator-spdxjson.json"
+          output: "operator-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}-spdxjson.json"
 
       - name: Prepare Distribution Artifacts
         shell: bash
@@ -304,16 +305,18 @@ jobs:
           mv operator-*.json attestation
 
       - name: Upload Dist
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: dist
+          name: dist-manager-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           path: dist
+          retention-days: 1
 
       - name: Upload attestation
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: attestation
+          name: attestation-manager-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           path: attestation
+          retention-days: 1
 
   build-bundle:
     runs-on: ubuntu-latest
@@ -355,7 +358,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -408,7 +411,7 @@ jobs:
           scan-type: image
           image-ref: ${{ env.BUNDLE_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           format: "cosign-vuln"
-          output: "bundle-cosignvuln.json"
+          output: "bundle-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}-cosignvuln.json"
 
       - name: Run Trivy SBOM generator
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
@@ -416,7 +419,7 @@ jobs:
           scan-type: image
           image-ref: ${{ env.BUNDLE_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           format: "spdx-json"
-          output: "bundle-spdxjson.json"
+          output: "bundle-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}-spdxjson.json"
 
       - name: Prepare Distribution Artifacts
         shell: bash
@@ -434,16 +437,18 @@ jobs:
           mv bundle-*.json attestation
 
       - name: Upload Dist
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: dist
+          name: dist-bundle-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           path: dist
+          retention-days: 1
 
       - name: Upload attestation
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: attestation
+          name: attestation-bundle-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           path: attestation
+          retention-days: 1
 
   package-helm:
     runs-on: ubuntu-latest
@@ -479,7 +484,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -504,10 +509,11 @@ jobs:
           helm package -d dist ./charts/${{ env.REPOSITORY_NAME }}
 
       - name: Upload Dist
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: dist
+          name: dist-charts
           path: dist
+          retention-days: 1
 
   test-operator:
     runs-on: ubuntu-latest
@@ -541,7 +547,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -600,7 +606,7 @@ jobs:
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -617,3 +623,39 @@ jobs:
       - name: Test Helm Chart Deployment
         shell: bash
         run: make helmchart-test OPERATOR_NAME=${{ env.REPOSITORY_NAME }}
+
+  recombine-dist:
+    runs-on: ubuntu-latest
+    name: recombine-dist
+    needs: ["setup", "build-operator", "build-bundle", "package-helm" ]
+    steps:
+      - name: Prepare download
+        run: |
+          mkdir -p dist
+          mkdir -p attestation
+
+      - name: Download all dist artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        with:
+          pattern: dist-*
+          merge-multiple: true
+          path: dist
+
+      - name: Download all attestation artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        with:
+          pattern: attestation-*
+          merge-multiple: true
+          path: attestation
+
+      - name: Upload Dist
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Upload Attestation
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
+        with:
+          name: attestation
+          path: attestation
