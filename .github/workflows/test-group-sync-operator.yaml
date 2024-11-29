@@ -1,0 +1,24 @@
+name: Testing group-sync-operator
+on:
+  pull_request:
+  schedule:
+    - cron: '0 1 * * 1'
+
+# Declare default permissions as read only.
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  group-sync-operator-workflow:
+    name: Test PR shared-operator-workflow for group-sync-operator
+    uses: ./.github/workflows/pr-operator.yml
+    with:
+      GO_VERSION: ~1.21
+      RUN_UNIT_TESTS: true
+      RUN_INTEGRATION_TESTS: false
+      RUN_HELMCHART_TEST: false
+      OPERATOR_SDK_VERSION: v1.25.2
+      CHECKOUT_CODE: "redhat-cop/group-sync-operator"
