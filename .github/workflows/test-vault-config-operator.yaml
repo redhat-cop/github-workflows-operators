@@ -1,0 +1,24 @@
+name: Testing vault-config-operator
+on:
+  pull_request:
+  schedule:
+    - cron: '0 1 * * 1'
+
+# Declare default permissions as read only.
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+  
+jobs:
+  vault-config-operator-workflow:
+    name: Test PR shared-operator-workflow for vault-config-operator
+    uses: ./.github/workflows/pr-operator.yml
+    with:
+      RUN_UNIT_TESTS: true
+      RUN_INTEGRATION_TESTS: true
+      RUN_HELMCHART_TEST: true
+      GO_VERSION: ~1.21
+      OPERATOR_SDK_VERSION: v1.25.3
+      CHECKOUT_CODE: "redhat-cop/vault-config-operator"
