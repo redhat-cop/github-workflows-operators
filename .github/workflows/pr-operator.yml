@@ -34,6 +34,11 @@ on:
         default: false
         required: false
         type: boolean
+      CHECKOUT_CODE:
+        description: "Repository to checkout"
+        default: "${{ github.repository }}"
+        required: false
+        type: string
 env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
@@ -46,18 +51,26 @@ jobs:
     runs-on: ubuntu-latest
     name: setup
     steps:
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
+          
       - name: Setting Workflow Variables
         id: set-variables
         env:
           BUILD_PLATFORMS: ${{ inputs.BUILD_PLATFORMS }}
+          CHECKOUT_CODE: ${{ inputs.CHECKOUT_CODE }}
         run: |
-          echo "repository_name=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_OUTPUT
+          echo "repository_name=$(basename ${{ env.CHECKOUT_CODE }})" >> $GITHUB_OUTPUT
           echo "bin_dir=$(pwd)/bin" >> $GITHUB_OUTPUT
 
           # Create Distribution Matrix
           echo "dist_matrix=$(echo -n "${{ env.BUILD_PLATFORMS }}" | jq -csR '. | split(",")')" >> $GITHUB_OUTPUT
           # Create Image Tags
           echo "image_platform_tags=$(echo $BUILD_PLATFORMS | sed  -e 's/,/ /g' -e 's/\//-/g')" >> $GITHUB_OUTPUT
+          
+          echo "$(cat ${GITHUB_OUTPUT})"
 
       - name: Setting Image Variables
         id: set-variables-image
@@ -94,6 +107,8 @@ jobs:
             echo "bundle_version=$DEFAULT_BUNDLE_VERSION" >> $GITHUB_OUTPUT
             echo "helmchart_version=$DEFAULT_HELMCHART_VERSION" >> $GITHUB_OUTPUT
           fi
+          
+          echo "$(cat ${GITHUB_OUTPUT})"
 
       - name: Verify Semver Bundle Version
         uses: rubenesp87/semver-validation-action@8f4b9f2835a4826fbbdfe8f5dbb6ad8996cf5831 # 0.1.0
@@ -112,22 +127,19 @@ jobs:
           echo "go-mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
 
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
-      - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ steps.go-cache-paths.outputs.go-build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ steps.go-cache-paths.outputs.go-mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -149,10 +161,11 @@ jobs:
           make controller-gen
 
       - name: Upload Support Binaries
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
           name: support-binaries
           path: ${{ steps.set-variables.outputs.bin_dir }}
+          retention-days: 1
 
     outputs:
       repository_name: ${{ steps.set-variables.outputs.repository_name }}
@@ -188,28 +201,30 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Support Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -243,15 +258,15 @@ jobs:
         run: make
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@0d103c3126aa41d772a8362f6aa67afac040f80c # v3
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
         with:
           buildkitd-flags: --debug
 
       - name: "Build Operator Image"
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # v6
         with:
           context: .
           file: "./ci.Dockerfile"
@@ -267,7 +282,7 @@ jobs:
           scan-type: image
           image-ref: ${{ env.OPERATOR_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           format: "cosign-vuln"
-          output: "operator-cosignvuln.json"
+          output: "operator-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}-cosignvuln.json"
 
       - name: Run Trivy SBOM generator
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
@@ -275,7 +290,7 @@ jobs:
           scan-type: image
           image-ref: ${{ env.OPERATOR_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           format: "spdx-json"
-          output: "operator-spdxjson.json"
+          output: "operator-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}-spdxjson.json"
 
       - name: Prepare Distribution Artifacts
         shell: bash
@@ -290,16 +305,18 @@ jobs:
           mv operator-*.json attestation
 
       - name: Upload Dist
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: dist
+          name: dist-manager-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           path: dist
+          retention-days: 1
 
       - name: Upload attestation
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: attestation
+          name: attestation-manager-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           path: attestation
+          retention-days: 1
 
   build-bundle:
     runs-on: ubuntu-latest
@@ -318,28 +335,30 @@ jobs:
       BUNDLE_IMAGE_REGISTRY: ${{ needs.setup.outputs.bundle_image_registry }}
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -370,13 +389,13 @@ jobs:
         run: operator-sdk bundle validate ./bundle --select-optional name=operatorhub
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@0d103c3126aa41d772a8362f6aa67afac040f80c # v3
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
 
       - name: "Build Bundle Image"
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # v6
         with:
           context: .
           file: ./bundle.Dockerfile
@@ -392,7 +411,7 @@ jobs:
           scan-type: image
           image-ref: ${{ env.BUNDLE_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           format: "cosign-vuln"
-          output: "bundle-cosignvuln.json"
+          output: "bundle-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}-cosignvuln.json"
 
       - name: Run Trivy SBOM generator
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # 0.29.0
@@ -400,7 +419,7 @@ jobs:
           scan-type: image
           image-ref: ${{ env.BUNDLE_IMAGE_REPOSITORY }}:latest-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           format: "spdx-json"
-          output: "bundle-spdxjson.json"
+          output: "bundle-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}-spdxjson.json"
 
       - name: Prepare Distribution Artifacts
         shell: bash
@@ -418,16 +437,18 @@ jobs:
           mv bundle-*.json attestation
 
       - name: Upload Dist
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: dist
+          name: dist-bundle-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           path: dist
+          retention-days: 1
 
       - name: Upload attestation
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: attestation
+          name: attestation-bundle-${{ steps.setup-build-step.outputs.platform_os }}-${{ steps.setup-build-step.outputs.platform_arch }}
           path: attestation
+          retention-days: 1
 
   package-helm:
     runs-on: ubuntu-latest
@@ -440,28 +461,30 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -479,17 +502,18 @@ jobs:
         shell: bash
         run: |
           # Render Helm Chart
-          make helmchart VERSION=${{ env.HELM_RELEASE_VERSION }} IMG=${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }}
+          make helmchart OPERATOR_NAME=${{ env.REPOSITORY_NAME }} VERSION=${{ env.HELM_RELEASE_VERSION }} IMG=${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }}
 
           # Package Helm Chart
           mkdir dist
           helm package -d dist ./charts/${{ env.REPOSITORY_NAME }}
 
       - name: Upload Dist
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: dist
+          name: dist-charts
           path: dist
+          retention-days: 1
 
   test-operator:
     runs-on: ubuntu-latest
@@ -500,28 +524,30 @@ jobs:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -557,28 +583,30 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
       - name: Download Binaries
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: support-binaries
           path: ${{ needs.setup.outputs.bin_dir }}
@@ -594,4 +622,40 @@ jobs:
 
       - name: Test Helm Chart Deployment
         shell: bash
-        run: make helmchart-test
+        run: make helmchart-test OPERATOR_NAME=${{ env.REPOSITORY_NAME }}
+
+  recombine-dist:
+    runs-on: ubuntu-latest
+    name: recombine-dist
+    needs: ["setup", "build-operator", "build-bundle", "package-helm" ]
+    steps:
+      - name: Prepare download
+        run: |
+          mkdir -p dist
+          mkdir -p attestation
+
+      - name: Download all dist artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        with:
+          pattern: dist-*
+          merge-multiple: true
+          path: dist
+
+      - name: Download all attestation artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
+        with:
+          pattern: attestation-*
+          merge-multiple: true
+          path: attestation
+
+      - name: Upload Dist
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Upload Attestation
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
+        with:
+          name: attestation
+          path: attestation
