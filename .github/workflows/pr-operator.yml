@@ -34,6 +34,11 @@ on:
         default: false
         required: false
         type: boolean
+      CHECKOUT_CODE:
+        description: "Repository to checkout"
+        default: "${{ github.repository }}"
+        required: false
+        type: string
 env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
@@ -46,18 +51,26 @@ jobs:
     runs-on: ubuntu-latest
     name: setup
     steps:
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
+          
       - name: Setting Workflow Variables
         id: set-variables
         env:
           BUILD_PLATFORMS: ${{ inputs.BUILD_PLATFORMS }}
+          CHECKOUT_CODE: ${{ inputs.CHECKOUT_CODE }}
         run: |
-          echo "repository_name=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_OUTPUT
+          echo "repository_name=$(basename ${{ env.CHECKOUT_CODE }})" >> $GITHUB_OUTPUT
           echo "bin_dir=$(pwd)/bin" >> $GITHUB_OUTPUT
 
           # Create Distribution Matrix
           echo "dist_matrix=$(echo -n "${{ env.BUILD_PLATFORMS }}" | jq -csR '. | split(",")')" >> $GITHUB_OUTPUT
           # Create Image Tags
           echo "image_platform_tags=$(echo $BUILD_PLATFORMS | sed  -e 's/,/ /g' -e 's/\//-/g')" >> $GITHUB_OUTPUT
+          
+          echo "$(cat ${GITHUB_OUTPUT})"
 
       - name: Setting Image Variables
         id: set-variables-image
@@ -94,6 +107,8 @@ jobs:
             echo "bundle_version=$DEFAULT_BUNDLE_VERSION" >> $GITHUB_OUTPUT
             echo "helmchart_version=$DEFAULT_HELMCHART_VERSION" >> $GITHUB_OUTPUT
           fi
+          
+          echo "$(cat ${GITHUB_OUTPUT})"
 
       - name: Verify Semver Bundle Version
         uses: rubenesp87/semver-validation-action@8f4b9f2835a4826fbbdfe8f5dbb6ad8996cf5831 # 0.1.0
@@ -112,22 +127,19 @@ jobs:
           echo "go-mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
 
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
-      - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ steps.go-cache-paths.outputs.go-build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ steps.go-cache-paths.outputs.go-mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -188,22 +200,24 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -243,15 +257,15 @@ jobs:
         run: make
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@0d103c3126aa41d772a8362f6aa67afac040f80c # v3
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
         with:
           buildkitd-flags: --debug
 
       - name: "Build Operator Image"
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # v6
         with:
           context: .
           file: "./ci.Dockerfile"
@@ -318,22 +332,24 @@ jobs:
       BUNDLE_IMAGE_REGISTRY: ${{ needs.setup.outputs.bundle_image_registry }}
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -370,13 +386,13 @@ jobs:
         run: operator-sdk bundle validate ./bundle --select-optional name=operatorhub
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@0d103c3126aa41d772a8362f6aa67afac040f80c # v3
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
 
       - name: "Build Bundle Image"
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # v6
         with:
           context: .
           file: ./bundle.Dockerfile
@@ -440,22 +456,24 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -479,7 +497,7 @@ jobs:
         shell: bash
         run: |
           # Render Helm Chart
-          make helmchart VERSION=${{ env.HELM_RELEASE_VERSION }} IMG=${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }}
+          make helmchart OPERATOR_NAME=${{ env.REPOSITORY_NAME }} VERSION=${{ env.HELM_RELEASE_VERSION }} IMG=${{ env.OPERATOR_IMAGE_REPOSITORY }}:${{ env.OPERATOR_VERSION }}
 
           # Package Helm Chart
           mkdir dist
@@ -500,22 +518,24 @@ jobs:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -557,22 +577,24 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.CHECKOUT_CODE }}
 
       - name: Go Build Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -594,4 +616,4 @@ jobs:
 
       - name: Test Helm Chart Deployment
         shell: bash
-        run: make helmchart-test
+        run: make helmchart-test OPERATOR_NAME=${{ env.REPOSITORY_NAME }}
