@@ -111,12 +111,12 @@ jobs:
           echo "$(cat ${GITHUB_OUTPUT})"
 
       - name: Verify Semver Bundle Version
-        uses: rubenesp87/semver-validation-action@8f4b9f2835a4826fbbdfe8f5dbb6ad8996cf5831 # 0.1.0
+        uses: rubenesp87/semver-validation-action@5cdc5ce34a38664a41002f51c6ab75d6a7ddeca9 # 1
         with:
           version: "${{ steps.set-variables-image.outputs.bundle_version }}"
 
       - name: Verify Semver Helm Chart Version
-        uses: rubenesp87/semver-validation-action@8f4b9f2835a4826fbbdfe8f5dbb6ad8996cf5831 # 0.1.0
+        uses: rubenesp87/semver-validation-action@5cdc5ce34a38664a41002f51c6ab75d6a7ddeca9 # 1
         with:
           version: "${{ steps.set-variables-image.outputs.helmchart_version }}"
 
