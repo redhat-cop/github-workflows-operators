@@ -161,13 +161,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Go Build Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ steps.go-cache-paths.outputs.go-build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ steps.go-cache-paths.outputs.go-mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -257,13 +257,13 @@ jobs:
           fi
 
       - name: Go Build Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -488,13 +488,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Go Build Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -710,13 +710,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Go Build Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -1069,13 +1069,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Go Build Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
@@ -1126,13 +1126,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Go Build Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_build }}
           key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
 
       - name: Go Mod Cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
         with:
           path: ${{ needs.setup.outputs.go_mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
