@@ -810,7 +810,7 @@ jobs:
         run: for i in `ls dist/`; do sha256sum dist/$i | awk '{ print $1 }' > dist/$i.sum256; done
 
       - name: Create Release
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2
         with:
           generate_release_notes: true
           draft: false
