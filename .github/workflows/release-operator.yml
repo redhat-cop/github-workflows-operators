@@ -5,7 +5,7 @@ on:
       OPERATOR_SDK_VERSION:
         description: "Version of Operator SDK Binary for installation"
         # renovate: datasource=github-releases depName=operator-framework/operator-sdk
-        default: "v1.39.2"
+        default: "v1.41.1"
         required: false
         type: string
       BUILD_PLATFORMS:
