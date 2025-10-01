@@ -152,7 +152,7 @@ jobs:
           echo "go-mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
 
       - name: Set up Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
@@ -236,7 +236,7 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
@@ -479,7 +479,7 @@ jobs:
       
     steps:
       - name: Set up Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
@@ -701,7 +701,7 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
@@ -1060,7 +1060,7 @@ jobs:
       REPOSITORY_NAME: ${{ needs.setup.outputs.repository_name }}
     steps:
       - name: Set up Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
@@ -1117,7 +1117,7 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Set up Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
           cache: false
