@@ -10,7 +10,7 @@ permissions: read-all
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-  
+
 jobs:
   vault-config-operator-workflow:
     name: Test PR shared-operator-workflow for vault-config-operator

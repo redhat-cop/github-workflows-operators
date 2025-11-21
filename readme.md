@@ -1,14 +1,14 @@
 # Github Workflows for Operator Development
 ## About This Repository
 This repoisitory contains work-in-progress example reusable Github Actions Workflows for Opeartor deployment and git-ops release to OLM (Operator Lifecycle Manager) Community Operators.
-## Workflows 
-### Release Operator 
-#### About This  Workflow 
+## Workflows
+### Release Operator
+#### About This  Workflow
 This workflow allows a caller repositiory following a common structure to build the operator, bundle, helm charts, and release to OpeatorHub via Github Fork PR request process.
-#### Requirements 
+#### Requirements
 * Fork of ```redhat-openshift-ecosystem/community-operators-prod``` created by ```PR_ACTOR``` for PR release process.
 * Github branch ```gh-pages``` on caller-repo for Github Pages Helm Chart Hosting
-##### Caller (Operator Repo) Configuration 
+##### Caller (Operator Repo) Configuration
 * Operator Dockerfile located at ```./Dockerfile``` in root of Repository
 * Bundle Dockerfile located at ```./bundle.Dockerfile``` in root of Repository
 ##### Caller (Operator Repo) Github Repository Secrets
@@ -30,7 +30,7 @@ This workflow allows a caller repositiory following a common structure to build 
 
 Example PR workflow in your ooperator's `.gihub/workflows/pr-operator.yml` file...
 
-```yaml 
+```yaml
 name: pull request
 on:
   pull_request:
@@ -42,7 +42,7 @@ jobs:
   shared-operator-workflow:
     name: shared-operator-workflow
     uses: redhat-cop/github-workflows-operators/.github/workflows/pr-operator.yml@main
-    with: 
+    with:
       RUN_UNIT_TESTS: true
       RUN_INTEGRATION_TESTS: true
       RUN_HELMCHART_TEST: true
@@ -63,7 +63,7 @@ on:
 jobs:
   shared-operator-workflow:
     name: shared-operator-workflow
-    uses: redhat-cop/github-workflows-operators/.github/workflows/release-operator.yml@main    
+    uses: redhat-cop/github-workflows-operators/.github/workflows/release-operator.yml@main
     secrets:
       COMMUNITY_OPERATOR_PAT: ${{ secrets.COMMUNITY_OPERATOR_PAT }}
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
