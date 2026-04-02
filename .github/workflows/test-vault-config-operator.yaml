@@ -22,3 +22,4 @@ jobs:
       GO_VERSION: ~1.22
       OPERATOR_SDK_VERSION: v1.31.0
       CHECKOUT_CODE: "redhat-cop/vault-config-operator"
+      KUBECTL_WAIT_TIMEOUT: 20m
