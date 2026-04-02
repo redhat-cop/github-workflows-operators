@@ -48,6 +48,11 @@ on:
         default: false
         required: false
         type: boolean
+      KUBECTL_WAIT_TIMEOUT:
+        description: "kubectl wait timeout used for integration and helmchart-test targets in the Makefile (e.g. 5m)"
+        default: "5m"
+        required: false
+        type: string
     secrets:
       COMMUNITY_OPERATOR_PAT:
         description: "Github PAT Token for Community Operator Fork Git Operations"
@@ -1103,7 +1108,7 @@ jobs:
       - name: Run integration tests
         shell: bash
         if: ${{ inputs.RUN_INTEGRATION_TESTS }}
-        run: make integration
+        run: make integration KUBECTL_WAIT_TIMEOUT=${{ inputs.KUBECTL_WAIT_TIMEOUT }}
 
   test-helmchart:
     runs-on: ubuntu-latest
@@ -1154,4 +1159,4 @@ jobs:
 
       - name: Test Helm Chart Deployment
         shell: bash
-        run: make helmchart-test
+        run: make helmchart-test KUBECTL_WAIT_TIMEOUT=${{ inputs.KUBECTL_WAIT_TIMEOUT }}
