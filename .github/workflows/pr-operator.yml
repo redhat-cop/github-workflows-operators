@@ -39,6 +39,11 @@ on:
         default: "${{ github.repository }}"
         required: false
         type: string
+      KUBECTL_WAIT_TIMEOUT:
+        description: "kubectl wait timeout used for integration and helmchart-test targets in the Makefile (e.g. 5m)"
+        default: "5m"
+        required: false
+        type: string
 env:
   DEFAULT_BUNDLE_VERSION: "0.0.1"
   DEFAULT_BUNDLE_CHANNEL: "alpha"
@@ -569,7 +574,7 @@ jobs:
       - name: Run integration tests
         shell: bash
         if: ${{ inputs.RUN_INTEGRATION_TESTS }}
-        run: make integration
+        run: make integration KUBECTL_WAIT_TIMEOUT=${{ inputs.KUBECTL_WAIT_TIMEOUT }}
 
   test-helmchart:
     runs-on: ubuntu-latest
@@ -622,7 +627,7 @@ jobs:
 
       - name: Test Helm Chart Deployment
         shell: bash
-        run: make helmchart-test OPERATOR_NAME=${{ env.REPOSITORY_NAME }}
+        run: make helmchart-test OPERATOR_NAME=${{ env.REPOSITORY_NAME }} KUBECTL_WAIT_TIMEOUT=${{ inputs.KUBECTL_WAIT_TIMEOUT }}
 
   recombine-dist:
     runs-on: ubuntu-latest
