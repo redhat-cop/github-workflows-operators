@@ -163,7 +163,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Go Build Cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -247,7 +247,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Validate variables
         run: |
@@ -490,7 +490,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Go Build Cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -712,7 +712,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Go Build Cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -799,7 +799,7 @@ jobs:
       OPERATOR_VERSION: ${{ needs.setup.outputs.operator_version }}
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Fetch Code
         run: |
@@ -844,10 +844,10 @@ jobs:
       OPERATOR_IMAGE_REPOSITORY: "${{ needs.setup.outputs.operator_image_registry }}/${{ needs.setup.outputs.operator_image_repository_name }}"
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Checkout gh-pages Branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           path: ${{ env.HELM_REPO_DIR }}
           ref: gh-pages
@@ -900,10 +900,10 @@ jobs:
       BUNDLE_VERSION: ${{ needs.setup.outputs.bundle_version }}
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Checkout Community Operators
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           repository: ${{ env.COMMUNITY_OPERATORS_ORGANIZATION_NAME }}/${{ env.COMMUNITY_OPERATORS_REPOSITORY_NAME }}
           path: ./tmp/${{ env.COMMUNITY_OPERATORS_REPOSITORY_NAME }}
@@ -1071,7 +1071,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Go Build Cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -1128,7 +1128,7 @@ jobs:
           cache: false
 
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Go Build Cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
