@@ -16,9 +16,9 @@ jobs:
     name: Test PR shared-operator-workflow for group-sync-operator
     uses: ./.github/workflows/pr-operator.yml
     with:
-      GO_VERSION: ~1.21
+      GO_VERSION: ~1.27
       RUN_UNIT_TESTS: true
       RUN_INTEGRATION_TESTS: false
-      RUN_HELMCHART_TEST: false
-      OPERATOR_SDK_VERSION: v1.25.2
+      RUN_HELMCHART_TEST: true
+      OPERATOR_SDK_VERSION: v1.42.3
       CHECKOUT_CODE: "redhat-cop/group-sync-operator"
