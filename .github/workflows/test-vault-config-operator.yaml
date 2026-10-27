@@ -19,7 +19,7 @@ jobs:
       RUN_UNIT_TESTS: true
       RUN_INTEGRATION_TESTS: true
       RUN_HELMCHART_TEST: true
-      GO_VERSION: ~1.22
-      OPERATOR_SDK_VERSION: v1.31.0
+      GO_VERSION: ~1.27
+      OPERATOR_SDK_VERSION: v1.42.3
       CHECKOUT_CODE: "redhat-cop/vault-config-operator"
       KUBECTL_WAIT_TIMEOUT: 20m
