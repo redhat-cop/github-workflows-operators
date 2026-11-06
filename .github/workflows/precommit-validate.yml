@@ -18,7 +18,7 @@ jobs:
           python-version: 3.x
 
       - name: Remove rh-pre-commit hook (requires VPN)
-        uses: mikefarah/yq@0f4fb8d35ec1a939d78dd6862f494d19ec589f19 # v4.52.5
+        uses: mikefarah/yq@a4330671f17776618660a419ab2531e4f4dc48b6 # v4.54.2
         with:
           cmd: yq -i 'del( .repos[] | select(.rev == "rh-pre-commit-*"))' .pre-commit-config.yaml
 
